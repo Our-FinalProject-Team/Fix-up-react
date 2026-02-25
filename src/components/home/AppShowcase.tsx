@@ -34,8 +34,8 @@ export default function AppShowcase(): JSX.Element {
               <div className="bg-white p-4 border-b border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-xs text-gray-500">Good morning!</p>
-                    <p className="font-semibold text-gray-900">John's Home</p>
+                    <p className="text-xs text-gray-500">!בוקר טוב </p>
+                    <p className="font-semibold text-gray-900">הבית של ג'ון</p>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white font-bold text-sm">
                     J
@@ -45,7 +45,7 @@ export default function AppShowcase(): JSX.Element {
                 {/* Search Bar */}
                 <div className="bg-gray-100 rounded-2xl px-4 py-3 flex items-center gap-3">
                   <div className="w-5 h-5 rounded-full bg-gray-300" />
-                  <span className="text-sm text-gray-400">Search services...</span>
+                  <span className="text-sm text-gray-400">...חפש שירותים</span>
                 </div>
               </div>
 
@@ -54,9 +54,9 @@ export default function AppShowcase(): JSX.Element {
                 <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-3xl p-4 text-gray-900 shadow-lg shadow-amber-500/30">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-xs font-medium bg-white/30 px-3 py-1 rounded-full">
-                      In Progress
+                      בתהליך
                     </span>
-                    <span className="text-xs font-bold">ETA: 10 min</span>
+                    <span className="text-xs font-bold">ETA: 10 דק</span>
                   </div>
 
                   <div className="flex items-center gap-3 mb-4">
@@ -66,10 +66,10 @@ export default function AppShowcase(): JSX.Element {
                       </div>
                     </div>
                     <div>
-                      <p className="font-bold">Mike Johnson</p>
+                      <p className="font-bold">מייק ג'ונסון</p>
                       <div className="flex items-center gap-1">
                         <Star className="w-3 h-3 fill-white" />
-                        <span className="text-xs font-medium">4.9 • Plumber</span>
+                        <span className="text-xs font-medium">4.9 • אינסטלטור</span>
                       </div>
                     </div>
                   </div>
@@ -89,7 +89,7 @@ export default function AppShowcase(): JSX.Element {
 
               {/* Quick Services */}
               <div className="px-4">
-                <p className="font-semibold text-gray-900 mb-3">Quick Services</p>
+                <p className="font-semibold text-gray-900 mb-3">שירותים מהירים</p>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { color: 'from-amber-400 to-orange-500', icon: '🔧' },
@@ -145,8 +145,8 @@ export default function AppShowcase(): JSX.Element {
               <MapPin className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="text-xs text-gray-500">Location</p>
-              <p className="text-sm font-semibold text-gray-900">0.5 mi away</p>
+              <p className="text-xs text-gray-500">מיקום</p>
+              <p className="text-sm font-semibold text-gray-900">ק"מ 0.5משם </p>
             </div>
           </div>
         </motion.div>
@@ -165,7 +165,7 @@ export default function AppShowcase(): JSX.Element {
             </div>
             <span className="text-sm font-bold text-gray-900">5.0</span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Excellent service!</p>
+          <p className="text-xs text-gray-500 mt-1">!שירות מעולה </p>
         </motion.div>
       </div>
     </motion.div>

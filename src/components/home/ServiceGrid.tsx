@@ -27,18 +27,18 @@ interface Service {
 }
 
 const services: Service[] = [
-  { icon: Wrench, name: 'Maintenance', color: 'from-amber-400 to-orange-500', bg: 'bg-amber-50' },
-  { icon: Zap, name: 'Electrical', color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-50' },
-  { icon: Droplets, name: 'Plumbing', color: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50' },
-  { icon: Paintbrush, name: 'Painting', color: 'from-purple-400 to-pink-500', bg: 'bg-purple-50' },
-  { icon: Wind, name: 'HVAC', color: 'from-teal-400 to-emerald-500', bg: 'bg-teal-50' },
-  { icon: Shield, name: 'Security', color: 'from-slate-400 to-gray-600', bg: 'bg-slate-50' },
-  { icon: Hammer, name: 'Construction', color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
-  { icon: Home, name: 'Roofing', color: 'from-rose-400 to-pink-500', bg: 'bg-rose-50' },
-  { icon: Leaf, name: 'Landscaping', color: 'from-green-400 to-emerald-500', bg: 'bg-green-50' },
-  { icon: Lock, name: 'Locksmith', color: 'from-gray-400 to-zinc-600', bg: 'bg-gray-50' },
-  { icon: Tv, name: 'Appliances', color: 'from-indigo-400 to-violet-500', bg: 'bg-indigo-50' },
-  { icon: Sparkles, name: 'Cleaning', color: 'from-cyan-400 to-blue-500', bg: 'bg-cyan-50' },
+  { icon: Wrench, name: 'תחזוקה', color: 'from-amber-400 to-orange-500', bg: 'bg-amber-50' },
+  { icon: Zap, name: 'חשמל', color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-50' },
+  { icon: Droplets, name: 'אינסטלציה', color: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50' },
+  { icon: Paintbrush, name: 'צביעה', color: 'from-purple-400 to-pink-500', bg: 'bg-purple-50' },
+  { icon: Wind, name: 'מערכות מיזוג אויר', color: 'from-teal-400 to-emerald-500', bg: 'bg-teal-50' },
+  { icon: Shield, name: 'אבטחה', color: 'from-slate-400 to-gray-600', bg: 'bg-slate-50' },
+  { icon: Hammer, name: 'בנייה', color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
+  { icon: Home, name: 'חיפוי קירות', color: 'from-rose-400 to-pink-500', bg: 'bg-rose-50' },
+  { icon: Leaf, name: 'גינון', color: 'from-green-400 to-emerald-500', bg: 'bg-green-50' },
+  { icon: Lock, name: 'מנעולנות', color: 'from-gray-400 to-zinc-600', bg: 'bg-gray-50' },
+  { icon: Tv, name: 'מכשירי חשמל', color: 'from-indigo-400 to-violet-500', bg: 'bg-indigo-50' },
+  { icon: Sparkles, name: 'ניקיון', color: 'from-cyan-400 to-blue-500', bg: 'bg-cyan-50' },
 ];
 
 export default function ServiceGrid(): JSX.Element {

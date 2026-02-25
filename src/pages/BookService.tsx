@@ -106,8 +106,8 @@ export default function BookService() {
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="font-bold text-gray-900">Book Service</h1>
-              <p className="text-sm text-gray-500">Step {step} of 3</p>
+              <h1 className="font-bold text-gray-900">הזמן שירות</h1>
+              <p className="text-sm text-gray-500">שלב {step} 3</p>
             </div>
           </div>
           
@@ -153,7 +153,7 @@ export default function BookService() {
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
                     <span className="font-bold text-gray-900">{service.rating}</span>
-                    <span className="text-gray-500">({service.reviews} reviews)</span>
+                    <span className="text-gray-500">({service.reviews} ביקורות)</span>
                   </div>
                   <div className="flex items-center gap-1 text-gray-600">
                     <Clock className="w-5 h-5" />
@@ -164,7 +164,7 @@ export default function BookService() {
                 <p className="text-gray-600 mb-6">{service.description}</p>
                 
                 <div className="bg-gray-50 rounded-2xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">What's Included</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">מה כלול</h3>
                   <ul className="space-y-2">
                     {service.includes.map((item, i) => (
                       <li key={i} className="flex items-start gap-3">
@@ -182,7 +182,7 @@ export default function BookService() {
             {/* Price Summary */}
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-gray-600">Service Fee</span>
+                <span className="text-gray-600">דמי שירות</span>
                 <span className="font-bold text-gray-900">${service.price}.00</span>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
@@ -191,7 +191,7 @@ export default function BookService() {
               </div>
               <div className="h-px bg-gray-200 my-4" />
               <div className="flex items-center justify-between">
-                <span className="font-bold text-gray-900">Total</span>
+                <span className="font-bold text-gray-900">סך הכל</span>
                 <span className="text-2xl font-bold text-gray-900">${service.price + 4.99}</span>
               </div>
             </Card>
@@ -200,7 +200,7 @@ export default function BookService() {
               onClick={() => setStep(2)}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
             >
-              Continue to Scheduling
+              המשך לתשלום
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
           </motion.div>
@@ -208,6 +208,11 @@ export default function BookService() {
 
         {/* Step 2: Schedule */}
         {step === 2 && (
+          
+          //יש לבדוק האם הוא יתחבר ולפי זה לשלוח אותו לאיזה דף ?
+
+
+
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -216,7 +221,7 @@ export default function BookService() {
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-amber-500" />
-                Select Date
+                בחר תאריך
               </h3>
               
               <div className="grid grid-cols-7 gap-2">
@@ -243,7 +248,7 @@ export default function BookService() {
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-500" />
-                Select Time
+                בחר שעה
               </h3>
               
               <div className="grid grid-cols-4 gap-3">
@@ -269,12 +274,12 @@ export default function BookService() {
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-amber-500" />
-                Service Location
+                מיקום שירות
               </h3>
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="address" className="text-gray-700 mb-2 block">Address</Label>
+                  <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
                   <Input
                     id="address"
                     placeholder="Enter your full address"
@@ -285,7 +290,7 @@ export default function BookService() {
                 </div>
                 
                 <div>
-                  <Label htmlFor="notes" className="text-gray-700 mb-2 block">Additional Notes (optional)</Label>
+                  <Label htmlFor="notes" className="text-gray-700 mb-2 block">הערות נוספות (אופציונלי)</Label>
                   <Textarea
                     id="notes"
                     placeholder="Any special instructions or details about the issue..."
@@ -303,14 +308,14 @@ export default function BookService() {
                 onClick={() => setStep(1)}
                 className="flex-1 py-6 rounded-2xl border-2"
               >
-                Back
+                חזרה
               </Button>
               <Button
                 onClick={() => setStep(3)}
                 disabled={!selectedTime || !address}
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
               >
-                Continue to Payment
+                המשך לתשלום
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

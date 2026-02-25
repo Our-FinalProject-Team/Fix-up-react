@@ -43,7 +43,7 @@ interface BookingType {
   id: number;
   service: string;
   date: string;
-  status: 'completed' | 'pending' | 'cancelled';
+  status: 'הושלם' | 'ממתין' | 'בוטל';
   price: number;
   rating: number;
 }
@@ -65,22 +65,22 @@ const user: UserType = {
 };
 
 const savedAddresses: AddressType[] = [
-  { id: 1, label: 'Home', address: '123 Main Street, Apt 4B, New York, NY 10001', primary: true },
-  { id: 2, label: 'Office', address: '456 Business Ave, Floor 12, New York, NY 10002', primary: false },
+  { id: 1, label: 'בית', address: 'רחוב מיין 123, דירה 4 ,ניו יורק 10001', primary: true },
+  { id: 2, label: 'משרד', address: 'שדרת ביזנס 456,קומה 12,ניו יוקר 10002', primary: false },
 ];
 
 const recentBookings: BookingType[] = [
-  { id: 1, service: 'AC Maintenance', date: 'Feb 20, 2024', status: 'completed', price: 89, rating: 5 },
-  { id: 2, service: 'Pipe Repair', date: 'Feb 15, 2024', status: 'completed', price: 120, rating: 4 },
-  { id: 3, service: 'General Repair', date: 'Feb 10, 2024', status: 'completed', price: 49, rating: 5 },
+  { id: 1, service: 'תחזוקת מזגן', date: 'Feb 20, 2024 ', status: 'הושלם', price: 89, rating: 5 },
+  { id: 2, service: 'תיקון צנרת', date: 'Feb 15, 2024', status: 'הושלם', price: 120, rating: 4 },
+  { id: 3, service: 'תיקון כללי', date: 'Feb 10, 2024', status: 'הושלם', price: 49, rating: 5 },
 ];
 
 const menuItems: MenuItem[] = [
-  { icon: Bell, label: 'Notifications', badge: '3 new' },
-  { icon: CreditCard, label: 'Payment Methods' },
-  { icon: Shield, label: 'Privacy & Security' },
-  { icon: HelpCircle, label: 'Help & Support' },
-  { icon: Settings, label: 'App Settings' },
+  { icon: Bell, label: 'הודעות', badge: '3 new' },/////
+  { icon: CreditCard, label: 'שיטות תשלום' },//////
+  { icon: Shield, label: 'פרטיות ואבטחה' },//////
+  { icon: HelpCircle, label: 'עזרה & תמיכה' },/////////
+  { icon: Settings, label: 'הגדרות אפליקציה' },///////
 ];
 
 export default function Profile(): JSX.Element {
@@ -93,7 +93,7 @@ export default function Profile(): JSX.Element {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMtOS45NDEgMC0xOCA4LjA1OS0xOCAxOHM4LjA1OSAxOCAxOCAxOGMtOS45NDEgMC0xOC04LjA1OS0xOC0xOHM4LjA1OS0xOCAxOC0xOHoiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9nPjwvc3ZnPg==')] opacity-40" />
         
         <div className="max-w-lg mx-auto relative">
-          <h1 className="text-white text-2xl font-bold mb-6">Profile</h1>
+          <h1 className="text-white text-2xl font-bold mb-6">פרופיל</h1>
           
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -107,7 +107,7 @@ export default function Profile(): JSX.Element {
             <div className="text-white">
               <h2 className="text-xl font-bold">{user.name}</h2>
               <p className="text-gray-300 text-sm">{user.email}</p>
-              <p className="text-gray-400 text-sm mt-1">Member since {user.memberSince}</p>
+              <p className="text-gray-400 text-sm mt-1">חבר מאז {user.memberSince}</p>
             </div>
           </div>
         </div>
@@ -123,21 +123,21 @@ export default function Profile(): JSX.Element {
                   <Clock className="w-6 h-6 text-amber-600" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{user.totalBookings}</p>
-                <p className="text-xs text-gray-500">Bookings</p>
+                <p className="text-xs text-gray-500">הזמנות</p>
               </div>
               <div className="text-center border-x border-gray-100">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-100 flex items-center justify-center mb-2">
                   <Star className="w-6 h-6 text-emerald-600" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">4.8</p>
-                <p className="text-xs text-gray-500">Avg Rating</p>
+                <p className="text-xs text-gray-500">דירוג ממוצע</p>
               </div>
               <div className="text-center">
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-blue-100 flex items-center justify-center mb-2">
                   <Shield className="w-6 h-6 text-blue-600" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">VIP</p>
-                <p className="text-xs text-gray-500">Status</p>
+                <p className="text-xs text-gray-500">סטטוס</p>
               </div>
             </div>
           </Card>
@@ -151,11 +151,11 @@ export default function Profile(): JSX.Element {
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-amber-500" />
-                Saved Addresses
-              </h3>
+                כתובות שמורות             
+               </h3>
               <Button variant="ghost" size="sm" className="text-amber-600">
                 <Plus className="w-4 h-4 mr-1" />
-                Add
+                הוספה
               </Button>
             </div>
             <div className="divide-y divide-gray-100">
@@ -168,7 +168,7 @@ export default function Profile(): JSX.Element {
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-gray-900">{addr.label}</p>
                       {addr.primary && (
-                        <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">Primary</Badge>
+                        <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">כתובת ראשית</Badge>
                       )}
                     </div>
                     <p className="text-sm text-gray-500 truncate">{addr.address}</p>
@@ -188,11 +188,11 @@ export default function Profile(): JSX.Element {
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-amber-500" />
-                Recent Bookings
+                הזמנות אחרונות
               </h3>
               <Link to={createPageUrl('Services')}>
                 <Button variant="ghost" size="sm" className="text-amber-600">
-                  View All
+                  הצג הכל
                 </Button>
               </Link>
             </div>
@@ -242,7 +242,7 @@ export default function Profile(): JSX.Element {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <Button variant="outline" className="w-full py-6 rounded-2xl border-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
             <LogOut className="w-5 h-5 mr-2" />
-            Sign Out
+            התנתק
           </Button>
         </motion.div>
       </div>

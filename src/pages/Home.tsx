@@ -16,10 +16,10 @@ interface TrustBadge {
 
 export default function Home(): JSX.Element {
   const trustBadges: TrustBadge[] = [
-    { icon: Shield, text: 'Verified Pros', sub: 'Background checked' },
-    { icon: Clock, text: 'Same Day', sub: 'Service available' },
-    { icon: Star, text: 'Satisfaction', sub: 'Guaranteed' },
-    { icon: CheckCircle, text: 'Fixed Pricing', sub: 'No surprises' },
+    { icon: Shield, text: 'מומחים מאומתים', sub: 'בדיקת רקע' },
+    { icon: Clock, text: 'באותו יום', sub: 'שירות זמין' },
+    { icon: Star, text: 'שביעות רצון', sub: 'מובטח' },
+    { icon: CheckCircle, text: 'מחיר קבוע', sub: 'אין הפתעות' },
   ];
 
   const avatarLetters: string[] = ['A', 'B', 'C', 'D'];
@@ -42,31 +42,31 @@ export default function Home(): JSX.Element {
             >
               <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm mb-6">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-gray-700">Available 24/7 in your area</span>
+                <span className="text-sm font-medium text-gray-700">זמין 24/7 באזור שלך</span>
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                Home repairs,
+              ,תיקוני בית
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-amber-600">
-                  simplified.
+                פשוטים יותר
                 </span>
               </h1>
               
               <p className="text-lg text-gray-600 mb-8 max-w-lg">
-                Connect with verified professionals for all your home maintenance needs. 
-                Fast, reliable, and transparent pricing.
+              .צור קשר עם אנשי מקצוע מאומתים לכל צרכי תחזוקת הבית שלך
+              .תמחור מהיר , אמין ושקוף
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to={createPageUrl('Services')}>
                   <Button size="lg" className="w-full sm:w-auto bg-gray-900 hover:bg-gray-800 text-white px-8 py-6 text-lg rounded-2xl shadow-lg shadow-gray-900/20">
-                    Book a Service
+                    הזמן שירות
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
                 <Link to={createPageUrl('HowItWorks')}>
                   <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 py-6 text-lg rounded-2xl border-2">
-                    How it works
+                    איך זה עובד
                   </Button>
                 </Link>
               </div>
@@ -85,11 +85,10 @@ export default function Home(): JSX.Element {
                       <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <p className="text-sm text-gray-600">4.9/5 from 2,000+ reviews</p>
+                  <p className="text-sm text-gray-600">4.9/5 מתוך +2000 ביקורות</p>
                 </div>
               </div>
-            </motion.div>
-            
+            </motion.div>          
             <AppShowcase />
           </div>
         </div>
@@ -130,10 +129,10 @@ export default function Home(): JSX.Element {
             className="text-center mb-12"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              What do you need help with?
+              ?במה אתה צריך עזרה
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Browse our services and book instantly. Our professionals are ready to help.
+            .עיין בשירותים שלנו והזמן באופן מיידי. אנשי המקצוע שלנו מוכנים לעזור
             </p>
           </motion.div>
           
@@ -159,14 +158,14 @@ export default function Home(): JSX.Element {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
-              Ready to get started?
+              ? מוכן להתחיל 
             </h2>
             <p className="text-lg text-gray-300 mb-10 max-w-2xl mx-auto">
-              Join thousands of homeowners who trust FIXUP for their home maintenance needs.
+             . הצטרף לאלפי בעלי הבתים שסומכים עלינו לצורכי תחזוקת הבית שלהם 
             </p>
             <Link to={createPageUrl('Services')}>
               <Button size="lg" className="bg-amber-500 hover:bg-amber-400 text-gray-900 font-semibold px-10 py-6 text-lg rounded-2xl shadow-lg shadow-amber-500/30">
-                Book Your First Service
+              הזמן את השירות הראשון שלך
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>

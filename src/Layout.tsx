@@ -23,10 +23,10 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { name: 'Home', icon: Home, page: 'Home' },
-    { name: 'Services', icon: Search, page: 'Services' },
-    { name: 'Track', icon: MapPin, page: 'TrackService' },
-    { name: 'Profile', icon: User, page: 'Profile' },
+    { name: 'עמוד הבית', icon: Home, page: 'Home' },
+    { name: 'שירותים', icon: Search, page: 'Services' },
+    { name: 'מסלול', icon: MapPin, page: 'TrackService' },
+    { name: 'פרופיל', icon: User, page: 'Profile' },
   ];
 
   const isFullScreenPage = ['TrackService'].includes(currentPageName);
@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  How it Works
+                  איך זה עובד 
                 </Link>
               </nav>
 
@@ -77,7 +77,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
               <div className="hidden md:flex items-center gap-3">
                 <Link to={createPageUrl('Services')}>
                   <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6">
-                    Book Now
+                    הזמן עכשיו
                   </Button>
                 </Link>
               </div>
@@ -130,12 +130,12 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    How it Works
+                    איך זה עובד
                   </Link>
                   <div className="pt-2">
                     <Link to={createPageUrl('Services')} onClick={() => setMobileMenuOpen(false)}>
                       <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white rounded-xl py-6">
-                        Book a Service
+                        הזמן שירות
                       </Button>
                     </Link>
                   </div>
@@ -187,37 +187,37 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
                   <span className="text-xl font-bold">FIXUP</span>
                 </div>
                 <p className="text-gray-400 text-sm">
-                  Professional home maintenance services at your fingertips.
+                .שירותי תחזוקת בית מקצועיים בהישג יד
                 </p>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">Services</h4>
+                <h4 className="font-semibold mb-4">שירותים</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">Plumbing</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Electrical</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">HVAC</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Painting</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">אינסטלציה</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">חשמל</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">מערכות למיזוג אויר</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">צביעה</a></li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">Company</h4>
+                <h4 className="font-semibold mb-4">חברה</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Press</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">אודותינו</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">קריירה</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">בלוג</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">עיתונות</a></li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">Support</h4>
+                <h4 className="font-semibold mb-4">תמיכה</h4>
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Safety</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">מרכז עזרה</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">בטיחות</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">תנאים</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">פרטיות</a></li>
                 </ul>
               </div>
             </div>

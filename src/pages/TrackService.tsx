@@ -53,11 +53,11 @@ const professional: Professional = {
 };
 
 const statusSteps: StatusStep[] = [
-  { id: 'confirmed', label: 'Booking Confirmed', time: '9:30 AM', completed: true },
-  { id: 'assigned', label: 'Professional Assigned', time: '9:32 AM', completed: true },
-  { id: 'onway', label: 'On The Way', time: '9:45 AM', completed: true },
-  { id: 'arrived', label: 'Arrived', time: null, completed: false },
-  { id: 'completed', label: 'Service Completed', time: null, completed: false },
+  { id: 'confirmed', label: 'ההזמנה אושרה', time: '9:30 AM', completed: true },
+  { id: 'assigned', label: 'מוקצה איש מקצוע', time: '9:32 AM', completed: true },
+  { id: 'onway', label: 'בדרך', time: '9:45 AM', completed: true },
+  { id: 'arrived', label: 'הגיע', time: null, completed: false },
+  { id: 'completed', label: 'השירות הושלם', time: null, completed: false },
 ];
 
 export default function TrackService(): JSX.Element {
@@ -137,12 +137,12 @@ export default function TrackService(): JSX.Element {
             <Card className="p-4 rounded-3xl border-0 shadow-xl bg-gradient-to-r from-amber-400 to-amber-500">
               <div className="flex items-center justify-between">
                 <div className="text-gray-900">
-                  <p className="text-sm font-medium opacity-80">Estimated Arrival</p>
-                  <p className="text-3xl font-bold">{eta} min</p>
+                  <p className="text-sm font-medium opacity-80">הגעה משוערת</p>
+                  <p className="text-3xl font-bold">דקות {eta}</p>
                 </div>
                 <div className="text-right text-gray-900">
-                  <p className="text-sm font-medium opacity-80">Distance</p>
-                  <p className="text-xl font-bold">{professional.distance} mi</p>
+                  <p className="text-sm font-medium opacity-80">מרחק</p>
+                  <p className="text-xl font-bold">מיל{professional.distance} </p>
                 </div>
               </div>
             </Card>
@@ -158,7 +158,7 @@ export default function TrackService(): JSX.Element {
           {/* Status Timeline */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="p-5 rounded-3xl border-0 shadow-xl">
-              <h3 className="font-bold text-gray-900 mb-4">Service Status</h3>
+              <h3 className="font-bold text-gray-900 mb-4">מצב שירות</h3>
               <div className="space-y-1">
                 {statusSteps.map((step, index) => (
                   <div key={step.id} className="flex gap-4">

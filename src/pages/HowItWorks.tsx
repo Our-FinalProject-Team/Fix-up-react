@@ -38,44 +38,44 @@ const steps: Step[] = [
   {
     number: '01',
     icon: Search,
-    title: 'Browse Services',
-    description: 'Explore our wide range of home maintenance services. Find exactly what you need from plumbing to electrical work.',
+    title: 'עיון בשירותים',
+    description: 'גלה את מגוון שירותי תחזוקת הבית שלנו. מצא בדיוק את מה שאתה צריך, החל מאינסטלציה ועד עבודות חשמל..',
     color: 'from-amber-400 to-orange-500',
     bg: 'bg-amber-50'
   },
   {
     number: '02',
     icon: Calendar,
-    title: 'Book Instantly',
-    description: 'Choose your preferred date and time. Our flexible scheduling works around your busy lifestyle.',
+    title: 'הזמן באופן מידי',
+    description: '.בחר את התאריך והשעה המועדפים עליך. לוח הזמנים הגמיש שלנו מתאים לאורח החיים העמוס שלך',
     color: 'from-teal-400 to-emerald-500',
     bg: 'bg-teal-50'
   },
   {
     number: '03',
     icon: UserCheck,
-    title: 'Get Matched',
-    description: 'We assign the best-rated professional in your area. Track their arrival in real-time.',
+    title: 'קבל התאמה',
+    description: 'אנו מקצים את איש המקצוע בעל הדירוג הטוב ביותר באזור שלך. עקוב אחר הגעתו בזמן אמת.',
     color: 'from-blue-400 to-indigo-500',
     bg: 'bg-blue-50'
   },
   {
     number: '04',
     icon: ThumbsUp,
-    title: 'Relax & Rate',
-    description: 'Sit back while we handle everything. Pay securely and rate your experience after service.',
+    title: 'הירגע & דרג',
+    description: 'שב בזמן שאנחנו מטפלים בהכל. שלם בצורה מאובטחת ודרג את החוויה שלך לאחר השירות.',
     color: 'from-purple-400 to-pink-500',
     bg: 'bg-purple-50'
   },
 ];
 
 const features: Feature[] = [
-  { icon: Shield, title: 'Verified Professionals', desc: 'All pros are background-checked and certified' },
-  { icon: Clock, title: 'Same-Day Service', desc: 'Get help when you need it, even today' },
-  { icon: Star, title: 'Quality Guarantee', desc: "Not satisfied? We'll make it right" },
-  { icon: CreditCard, title: 'Transparent Pricing', desc: 'Know the cost upfront, no hidden fees' },
-  { icon: MessageCircle, title: 'Direct Chat', desc: 'Communicate directly with your professional' },
-  { icon: MapPin, title: 'Live Tracking', desc: 'Track your pro in real-time on the map' },
+  { icon: Shield, title: 'אנשי מקצוע מותאמים', desc: 'כל אנשי המקצוע עוברים בדיקת רקע ומוסמכים' },
+  { icon: Clock, title: 'שירות באותו יום', desc: 'קבל עזרה כשאתה זקוק לה, אפילו היום' },
+  { icon: Star, title: 'אחריות איכות', desc: "לא מרוצה? אנחנו נתקן את זה" },
+  { icon: CreditCard, title: 'תמחור שקוף', desc: 'דע את העלות מראש, ללא עמלות נסתרות' },
+  { icon: MessageCircle, title: 'צאט ישיר', desc: 'תקשר ישירות עם איש המקצוע שלך' },
+  { icon: MapPin, title: 'מעקב בזמן אמת', desc: 'עקוב אחר איש המקצוע שלך בזמן אמת על גבי המפה' },
 ];
 
 export default function HowItWorks(): JSX.Element {
@@ -94,11 +94,11 @@ export default function HowItWorks(): JSX.Element {
               Simple & Hassle-Free
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
-              How FIXUP Works
+              
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Getting professional help for your home has never been easier. 
-              Here's how we make it happen in four simple steps.
+           . קבלת עזרה מקצועית לביתכם מעולם לא הייתה קלה יותר
+           . כך אנו גורמים לזה לקרות בארבעה שלבים פשוטים
             </p>
           </motion.div>
         </div>
@@ -150,10 +150,10 @@ export default function HowItWorks(): JSX.Element {
             className="text-center mb-12"
           >
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose FIXUP?
+              ? FIXUP למה לבחור
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              We've thought of everything to make your home maintenance experience seamless.
+            .חשבנו על הכל כדי להפוך את חוויית תחזוקת הבית שלכם לחלקה            
             </p>
           </motion.div>
 

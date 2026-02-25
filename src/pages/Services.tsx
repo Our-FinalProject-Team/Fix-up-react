@@ -47,42 +47,42 @@ interface Service {
 // Categories
 const categories: Category[] = [
   { id: 'all', name: 'All', icon: null },
-  { id: 'maintenance', name: 'Maintenance', icon: Wrench, color: 'from-amber-400 to-orange-500' },
-  { id: 'electrical', name: 'Electrical', icon: Zap, color: 'from-yellow-400 to-amber-500' },
-  { id: 'plumbing', name: 'Plumbing', icon: Droplets, color: 'from-blue-400 to-cyan-500' },
-  { id: 'painting', name: 'Painting', icon: Paintbrush, color: 'from-purple-400 to-pink-500' },
-  { id: 'hvac', name: 'HVAC', icon: Wind, color: 'from-teal-400 to-emerald-500' },
-  { id: 'security', name: 'Security', icon: Shield, color: 'from-slate-400 to-gray-600' },
-  { id: 'construction', name: 'Construction', icon: Hammer, color: 'from-orange-400 to-red-500' },
-  { id: 'cleaning', name: 'Cleaning', icon: Sparkles, color: 'from-cyan-400 to-blue-500' },
+  { id: 'תחזוקה', name: 'תחזוקה', icon: Wrench, color: 'from-amber-400 to-orange-500' },
+  { id: 'חשמל', name: 'חשמל', icon: Zap, color: 'from-yellow-400 to-amber-500' },
+  { id: 'אינסטלציה', name: 'אינסטלציה', icon: Droplets, color: 'from-blue-400 to-cyan-500' },
+  { id: 'צביעה', name: 'צביעה', icon: Paintbrush, color: 'from-purple-400 to-pink-500' },
+  { id: 'מערכות מיזוג אויר', name: 'מערכות מיזוג אויר', icon: Wind, color: 'from-teal-400 to-emerald-500' },
+  { id: 'אבטחה', name: 'אבטחה', icon: Shield, color: 'from-slate-400 to-gray-600' },
+  { id: 'בנייה', name: 'בנייה', icon: Hammer, color: 'from-orange-400 to-red-500' },
+  { id: 'ניקיון', name: 'ניקיון', icon: Sparkles, color: 'from-cyan-400 to-blue-500' },
 ];
 
 // Service icons mapping
 const serviceIcons: Record<string, ServiceIcon> = {
-  maintenance: { icon: Wrench, color: 'from-amber-400 to-orange-500', bg: 'bg-amber-50' },
-  electrical: { icon: Zap, color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-50' },
-  plumbing: { icon: Droplets, color: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50' },
-  painting: { icon: Paintbrush, color: 'from-purple-400 to-pink-500', bg: 'bg-purple-50' },
-  hvac: { icon: Wind, color: 'from-teal-400 to-emerald-500', bg: 'bg-teal-50' },
-  security: { icon: Shield, color: 'from-slate-400 to-gray-600', bg: 'bg-slate-50' },
-  construction: { icon: Hammer, color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
-  cleaning: { icon: Sparkles, color: 'from-cyan-400 to-blue-500', bg: 'bg-cyan-50' },
+  'תחזוקה': { icon: Wrench, color: 'from-amber-400 to-orange-500', bg: 'bg-amber-50' },
+  'חשמל': { icon: Zap, color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-50' },
+  'אינסטלציה': { icon: Droplets, color: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50' },
+  'צביעה': { icon: Paintbrush, color: 'from-purple-400 to-pink-500', bg: 'bg-purple-50' },
+  'מערכות מיזוג אויר': { icon: Wind, color: 'from-teal-400 to-emerald-500', bg: 'bg-teal-50' },
+  'אבטחה': { icon: Shield, color: 'from-slate-400 to-gray-600', bg: 'bg-slate-50' },
+  'בנייה': { icon: Hammer, color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
+  'ניקיון': { icon: Sparkles, color: 'from-cyan-400 to-blue-500', bg: 'bg-cyan-50' },
 };
 
 // Services
 const services: Service[] = [
-  { id: 1, name: 'General Repair', category: 'maintenance', price: 49, rating: 4.9, reviews: 234, duration: '1-2 hrs' },
-  { id: 2, name: 'Electrical Wiring', category: 'electrical', price: 79, rating: 4.8, reviews: 189, duration: '2-3 hrs' },
-  { id: 3, name: 'Pipe Repair', category: 'plumbing', price: 89, rating: 4.9, reviews: 312, duration: '1-3 hrs' },
-  { id: 4, name: 'Interior Painting', category: 'painting', price: 199, rating: 4.7, reviews: 156, duration: '4-8 hrs' },
-  { id: 5, name: 'AC Service', category: 'hvac', price: 99, rating: 4.8, reviews: 278, duration: '1-2 hrs' },
-  { id: 6, name: 'Security Installation', category: 'security', price: 149, rating: 4.9, reviews: 98, duration: '2-4 hrs' },
-  { id: 7, name: 'Wall Construction', category: 'construction', price: 299, rating: 4.6, reviews: 67, duration: '1-2 days' },
-  { id: 8, name: 'Deep Cleaning', category: 'cleaning', price: 129, rating: 4.9, reviews: 445, duration: '3-5 hrs' },
-  { id: 9, name: 'Faucet Installation', category: 'plumbing', price: 59, rating: 4.8, reviews: 201, duration: '30-60 min' },
-  { id: 10, name: 'Light Fixture Install', category: 'electrical', price: 69, rating: 4.7, reviews: 167, duration: '1 hr' },
-  { id: 11, name: 'Furniture Assembly', category: 'maintenance', price: 45, rating: 4.8, reviews: 389, duration: '1-2 hrs' },
-  { id: 12, name: 'Heating Repair', category: 'hvac', price: 119, rating: 4.9, reviews: 134, duration: '2-3 hrs' },
+  { id: 1, name: 'תיקון כללי', category: 'תחזוקה', price: 49, rating: 4.9, reviews: 234, duration: '1-2 hrs' },
+  { id: 2, name: 'חיווט חשמלי', category: 'חשמל', price: 79, rating: 4.8, reviews: 189, duration: '2-3 hrs' },
+  { id: 3, name: 'תיקון צנרת', category: 'אינסטלציה', price: 89, rating: 4.9, reviews: 312, duration: '1-3 hrs' },
+  { id: 4, name: 'צביעה פנימית', category: 'צביעה', price: 199, rating: 4.7, reviews: 156, duration: '4-8 hrs' },
+  { id: 5, name: 'שירות למזגנים', category: 'מערכות מיזוג אויר', price: 99, rating: 4.8, reviews: 278, duration: '1-2 hrs' },
+  { id: 6, name: 'התקנת אבטחה', category: 'אבטחה', price: 149, rating: 4.9, reviews: 98, duration: '2-4 hrs' },
+  { id: 7, name: 'התקנת אבטחה', category: 'בנייה', price: 299, rating: 4.6, reviews: 67, duration: '1-2 days' },
+  { id: 8, name: 'ניקיון יסודי', category: 'ניקיון', price: 129, rating: 4.9, reviews: 445, duration: '3-5 hrs' },
+  { id: 9, name: 'התקנת ברזים', category: 'אינסטלציה', price: 59, rating: 4.8, reviews: 201, duration: '30-60 min' },
+  { id: 10, name: 'התקנת גוף תאורה', category: 'חשמל', price: 69, rating: 4.7, reviews: 167, duration: '1 hr' },
+  { id: 11, name: 'הרכבת רהיטים', category: 'תחזוקה', price: 45, rating: 4.8, reviews: 389, duration: '1-2 hrs' },
+  { id: 12, name: 'תיקון חימום', category: 'מערכות מיזוג אויר', price: 119, rating: 4.9, reviews: 134, duration: '2-3 hrs' },
 ];
 
 export default function Services(): JSX.Element {
@@ -107,7 +107,7 @@ export default function Services(): JSX.Element {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Search services..."
+                placeholder="...חפש שירות"
                 value={searchQuery}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 className="pl-12 py-6 rounded-2xl border-gray-200 bg-gray-50 focus:bg-white transition-colors"
@@ -139,7 +139,7 @@ export default function Services(): JSX.Element {
         {/* Results Count */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-gray-600">
-            <span className="font-semibold text-gray-900">{filteredServices.length}</span> services available
+            <span className="font-semibold text-gray-900">{filteredServices.length}</span> : שירותים זמינים
           </p>
         </div>
 
@@ -188,7 +188,7 @@ export default function Services(): JSX.Element {
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-2xl font-bold text-gray-900">${service.price}</span>
-                          <span className="text-sm text-gray-500 ml-1">starting</span>
+                          <span className="text-sm text-gray-500 ml-1">החל מ</span>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
                           <ArrowRight className="w-5 h-5 text-white" />
@@ -211,8 +211,8 @@ export default function Services(): JSX.Element {
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
               <Search className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No services found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">לא נמצאו שירותים</h3>
+            <p className="text-gray-600">נסה להתאים את החיפוש או את קריטריוני הסינון שלך</p>
           </motion.div>
         )}
       </div>
