@@ -55,7 +55,8 @@ import TrackService from './pages/TrackService';
 import Profile from './pages/Profile';
 import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.tsx';
-
+import Registration from './pages/Registration.tsx';
+import  LogIn   from './pages/LogIn.tsx';
 
 export const PAGES = {
     "Home": Home,
@@ -64,6 +65,8 @@ export const PAGES = {
     "TrackService": TrackService,
     "Profile": Profile,
     "HowItWorks": HowItWorks,
+    "Registration": Registration,
+    "LogIn": LogIn,
 }
 
 export const pagesConfig = {

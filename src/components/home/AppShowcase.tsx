@@ -165,7 +165,7 @@ export default function AppShowcase(): JSX.Element {
             </div>
             <span className="text-sm font-bold text-gray-900">5.0</span>
           </div>
-          <p className="text-xs text-gray-500 mt-1">Excellent service!</p>
+          <p className="text-xs text-gray-500 mt-1">שירות מצוין!</p>
         </motion.div>
       </div>
     </motion.div>
