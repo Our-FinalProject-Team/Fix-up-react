@@ -27,6 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
     { name: 'שירותים', icon: Search, page: 'Services' },
     { name: 'מסלול', icon: MapPin, page: 'TrackService' },
     { name: 'פרופיל', icon: User, page: 'Profile' },
+    
   ];
 
   const isFullScreenPage = ['TrackService'].includes(currentPageName);

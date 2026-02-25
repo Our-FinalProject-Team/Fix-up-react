@@ -279,6 +279,14 @@ export default function BookService() {
               
               <div className="space-y-4">
                 <div>
+                  <Label htmlFor="address" className="text-gray-700 mb-2 block">שם</Label>
+                   <Input
+                    id="name"
+                    placeholder="Enter your full name"
+                    value={address}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
+                    className="py-6 rounded-xl border-gray-200"
+                  />
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
                   <Input
                     id="address"
