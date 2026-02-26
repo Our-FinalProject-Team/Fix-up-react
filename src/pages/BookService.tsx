@@ -19,6 +19,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
+import { useNavigate } from 'react-router-dom';
 
 interface Service {
   id: number;
@@ -55,13 +56,13 @@ const service: Service = {
   reviews: 234,
   duration: '1-2 hrs',
   image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=400&fit=crop',
-  description: 'Professional repair services for furniture, fixtures, and general household items. Our experts can handle everything from squeaky doors to broken shelves.',
+  description: 'שירותי תיקון מקצועיים לרהיטים, גופי תאורה ופריטים ביתיים כלליים. המומחים שלנו יכולים לטפל בכל דבר, החל מדלתות חורקות ועד מדפים שבורים.',
   includes: [
-    'Inspection and assessment',
-    'Basic repairs and fixes',
-    'Parts replacement (additional cost)',
-    'Cleanup after service',
-    '30-day service guarantee'
+    'בדיקה והערכה',
+    'תיקונים ותיקונים בסיסיים',
+    'החלפת חלקים (בתשלום נוסף)',
+    'ניקוי לאחר השירות',
+    'אחריות שירות ל-30 יום'
   ]
 };
 
@@ -88,6 +89,7 @@ const dates: DateOption[] = Array.from({ length: 7 }, (_, i) => {
 });
 
 export default function BookService() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState<DateOption>(dates[0]);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
@@ -186,7 +188,7 @@ export default function BookService() {
                 <span className="font-bold text-gray-900">${service.price}.00</span>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                <span>Service charge</span>
+                <span>דמי שירות</span>
                 <span>$4.99</span>
               </div>
               <div className="h-px bg-gray-200 my-4" />
@@ -282,7 +284,7 @@ export default function BookService() {
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">שם</Label>
                    <Input
                     id="name"
-                    placeholder="Enter your full name"
+                    placeholder="הקלד שם מלא"
                     value={address}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
                     className="py-6 rounded-xl border-gray-200"
@@ -290,7 +292,7 @@ export default function BookService() {
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
                   <Input
                     id="address"
-                    placeholder="Enter your full address"
+                    placeholder="הקלד כתובת מלאה"
                     value={address}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
                     className="py-6 rounded-xl border-gray-200"
@@ -301,7 +303,7 @@ export default function BookService() {
                   <Label htmlFor="notes" className="text-gray-700 mb-2 block">הערות נוספות (אופציונלי)</Label>
                   <Textarea
                     id="notes"
-                    placeholder="Any special instructions or details about the issue..."
+                    placeholder="...הוראות או פרטים מיוחדים בנוגע לבעיה"
                     value={notes}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                     className="rounded-xl border-gray-200 min-h-[100px]"
@@ -319,11 +321,13 @@ export default function BookService() {
                 חזרה
               </Button>
               <Button
-                onClick={() => setStep(3)}
+                //onClick={() => setStep(3)}
+               onClick={()=>createPageUrl('payment')}
                 disabled={!selectedTime || !address}
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
               >
-                המשך לתשלום
+
+                םםםהמשך לתשלום
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>
@@ -336,9 +340,11 @@ export default function BookService() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
+            
           >
             {/* ... rest is unchanged, types inferred automatically */}
           </motion.div>
+          
         )}
       </div>
     </div>
