@@ -93,6 +93,7 @@ export default function BookService() {
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [address, setAddress] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
+   const [name, setName] = useState<string>('');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -283,8 +284,8 @@ export default function BookService() {
                    <Input
                     id="name"
                     placeholder="Enter your full name"
-                    value={address}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
+                    value={name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                     className="py-6 rounded-xl border-gray-200"
                   />
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>

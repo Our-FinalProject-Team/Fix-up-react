@@ -114,7 +114,7 @@ export default function Profile(): JSX.Element {
       </div>
 
       {/* Stats Cards - Overlap */}
-      <div className="max-w-lg mx-auto px-4 -mt-12">
+     <div className="max-w-lg mx-auto px-4 mt-16">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="p-4 rounded-3xl border-0 shadow-xl">
             <div className="grid grid-cols-3 gap-4">
