@@ -22,13 +22,13 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
+const navItems = [
     { name: 'chat', icon: User, page: 'FullScreenChat' }, 
     { name: 'עמוד הבית', icon: Home, page: 'Home' },
     { name: 'שירותים', icon: Search, page: 'Services' },
     { name: 'מסלול', icon: MapPin, page: 'TrackService' },
     { name: 'פרופיל', icon: User, page: 'Profile' },   
-    { name: 'הרשמה', icon: User, page: 'Registration' },
+    { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
   ];
 
   const isFullScreenPage = ['TrackService'].includes(currentPageName);

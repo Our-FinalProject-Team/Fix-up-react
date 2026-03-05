@@ -47,7 +47,9 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-
+import ForgotPassword from './pages/ForgotPassword.tsx';
+import RegisterRole from './pages/RegisterRole.tsx';
+import ClientRegister from './pages/ClientRegister.tsx';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import BookService from './pages/BookService';
@@ -58,19 +60,26 @@ import __Layout from './Layout.tsx';
 import Registration from './pages/Registration.tsx';
 import  LogIn   from './pages/LogIn.tsx';
 
+
+
 export const PAGES = {
+   
     "Home": Home,
     "Services": Services,
     "BookService": BookService,
     "TrackService": TrackService,
     "Profile": Profile,
     "HowItWorks": HowItWorks,
-    "Registration": Registration,
+    "Registration": Registration, // זה בעצם ה-Professional
     "LogIn": LogIn,
-}
+    "RegisterRole": RegisterRole, 
+    "ForgotPassword": ForgotPassword,
+    "ClientRegister": ClientRegister 
+};
+
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "RegisterRole",
     Pages: PAGES,
     Layout: __Layout,
 };
