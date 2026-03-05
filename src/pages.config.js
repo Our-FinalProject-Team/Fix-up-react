@@ -59,7 +59,7 @@ import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.tsx';
 import Registration from './pages/Registration.tsx';
 import  LogIn   from './pages/LogIn.tsx';
-
+import ReviewForm from './pages/ReviewForm.tsx';
 
 
 export const PAGES = {
@@ -74,7 +74,8 @@ export const PAGES = {
     "LogIn": LogIn,
     "RegisterRole": RegisterRole, 
     "ForgotPassword": ForgotPassword,
-    "ClientRegister": ClientRegister 
+    "ClientRegister": ClientRegister,
+    "ReviewForm":ReviewForm,
 };
 
 

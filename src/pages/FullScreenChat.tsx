@@ -25,6 +25,8 @@ export default function Chat() {
   });
   const [sending, setSending] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  
+  // הודעות דוגמה
   const mockMessages: Message[] = [
     {
       id: '1',
@@ -36,13 +38,13 @@ export default function Chat() {
       id: '2',
       content: 'How are you?',
       sender_email: 'otheruser@example.com',
-      created_date: new Date(Date.now() - 1000 * 60).toISOString(), // 1 minute ago
+      created_date: new Date(Date.now() - 1000 * 60).toISOString(),
     },
   ];
 
   const messages = mockMessages;
 
-  // Auto-scroll to bottom
+  // גלילה אוטומטית למטה
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -51,7 +53,7 @@ export default function Chat() {
     async (content: string) => {
       if (!currentUser || sending) return;
       setSending(true);
-      // כאן תוכל להוסיף לוגיקה לשליחת ההודעה
+      // לוגיקת שליחה תבוא כאן
       setSending(false);
     },
     [currentUser, sending]
@@ -65,7 +67,7 @@ export default function Chat() {
     if (prev.sender_email !== msg.sender_email) return true;
     const prevDate = new Date(prev.created_date);
     const currDate = new Date(msg.created_date);
-    return currDate.getTime() - prevDate.getTime() > 5 * 60 * 1000; // 5 min gap
+    return currDate.getTime() - prevDate.getTime() > 5 * 60 * 1000;
   };
 
   const shouldShowDate = (msg: Message, idx: number) => {
@@ -85,18 +87,27 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-zinc-50">
+    <div className="h-screen flex flex-col overflow-hidden">
+      {/* כותרת הצ'אט */}
       <ChatHeader onlineCount={Math.max(uniqueSenders, 1)} />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="max-w-3xl mx-auto space-y-1">
+      {/* אזור ההודעות עם רקע מעוצב */}
+      <div 
+        className="flex-1 overflow-y-auto px-4 py-4 relative"
+        style={{
+          backgroundColor: "#f0f2f5", // צבע רקע בסיסי נעים
+          backgroundImage: `url('https://www.transparenttextures.com/patterns/subtle-dots.png')`, // תבנית נקודות עדינה
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        <div className="max-w-3xl mx-auto space-y-1 relative z-10">
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
                 <span className="text-2xl">💬</span>
               </div>
-              <h2 className="text-lg font-semibold text-zinc-700 mb-1">No messages yet</h2>
-              <p className="text-sm text-zinc-400">Be the first to say something!</p>
+              <h2 className="text-lg font-semibold text-zinc-700 mb-1">אין הודעות עדיין</h2>
+              <p className="text-sm text-zinc-400">תהיו הראשונים לכתוב משהו!</p>
             </div>
           ) : (
             messages.map((msg, idx) => {
@@ -121,7 +132,12 @@ export default function Chat() {
         </div>
       </div>
 
-      <ChatInput onSend={handleSend} disabled={sending} />
+      {/* תיבת הקלט */}
+      <div className="bg-white border-t border-zinc-200 p-2">
+        <div className="max-w-3xl mx-auto">
+          <ChatInput onSend={handleSend} disabled={sending} />
+        </div>
+      </div>
     </div>
   );
 }

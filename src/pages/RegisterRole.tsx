@@ -48,7 +48,7 @@ export default function RegisterRole() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold text-stone-800 tracking-tight"
           >
-            איך תרצה להצטרף ל-FIXUP?
+           איך תרצה להצטרף
           </motion.h1>
           <p className="text-stone-500 mt-4 text-lg">בחר את סוג החשבון שמתאים לך כדי להתחיל</p>
         </div>
