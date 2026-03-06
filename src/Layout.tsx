@@ -77,9 +77,9 @@ const navItems = [
 
               {/* CTA Button */}
               <div className="hidden md:flex items-center gap-3">
-                <Link to={createPageUrl('Services')}>
+                <Link to={createPageUrl('LogIn')}>
                   <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6">
-                    הזמן עכשיו
+                  התחברות
                   </Button>
                 </Link>
               </div>
