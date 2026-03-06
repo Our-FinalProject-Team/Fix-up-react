@@ -1,54 +1,60 @@
-import React, { useState } from "react";
-import { Send } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Send, Paperclip, X } from "lucide-react";
 
 interface ChatInputProps {
-  onSend: (message: string) => void;
+  onSend: (content: string, imageFile?: File) => void;
   disabled?: boolean;
 }
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
-  const [text, setText] = useState<string>("");
+  const [text, setText] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const trimmed = text.trim();
-    if (!trimmed || disabled) return;
-    onSend(trimmed);
-    setText("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
+  const clearFile = () => {
+    setSelectedFile(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSend(text, selectedFile || undefined);
+    setText("");
+    clearFile();
+  };
+
   return (
-    <div className="sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-zinc-100 px-4 py-3">
-      <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-3xl mx-auto">
-        <div className="flex-1 relative">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type a message..."
-            rows={1}
-            className="w-full resize-none rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-800 placeholder:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all"
-            style={{ minHeight: "44px", maxHeight: "120px" }}
-            onInput={(e) => {
-            const target = e.target as HTMLTextAreaElement; // Cast to HTMLTextAreaElement
-            target.style.height = "44px";
-            target.style.height = Math.min(target.scrollHeight, 120) + "px";
-            }}
-          />
+    <div className="relative">
+      {preview && (
+        <div className="absolute bottom-full mb-2 p-2 bg-white rounded-lg shadow-lg border flex items-center gap-2">
+          <img src={preview} className="h-12 w-12 object-cover rounded" alt="preview" />
+          <button onClick={clearFile} className="text-red-500"><X size={16}/></button>
         </div>
-        <button
-          type="submit"
-          disabled={!text.trim() || disabled}
-          className="h-11 w-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all disabled:opacity-30 disabled:shadow-none disabled:cursor-not-allowed active:scale-95"
-        >
-          <Send className="h-4 w-4" />
+      )}
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept="image/*" />
+        <button type="button" onClick={() => fileInputRef.current?.click()} className="p-2 text-zinc-500">
+          <Paperclip size={20} />
+        </button>
+        <input 
+          type="text" 
+          value={text} 
+          onChange={(e) => setText(e.target.value)}
+          className="flex-1 bg-zinc-100 rounded-full px-4 py-2 outline-none" 
+          placeholder="כתוב הודעה..."
+        />
+        <button type="submit" className="p-2 bg-blue-600 text-white rounded-full">
+          <Send size={18} />
         </button>
       </form>
     </div>
