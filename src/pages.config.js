@@ -60,7 +60,7 @@ import __Layout from './Layout.tsx';
 import Registration from './pages/Registration.tsx';
 import  LogIn   from './pages/LogIn.tsx';
 import ReviewForm from './pages/ReviewForm.tsx';
-
+import FullScreenChat from './pages/FullScreenChat.tsx'
 
 export const PAGES = {
    
@@ -76,6 +76,7 @@ export const PAGES = {
     "ForgotPassword": ForgotPassword,
     "ClientRegister": ClientRegister,
     "ReviewForm":ReviewForm,
+    "FullScreenChat":FullScreenChat,
 };
 
 
