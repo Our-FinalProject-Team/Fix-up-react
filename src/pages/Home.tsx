@@ -1,7 +1,7 @@
 import React, { JSX } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Shield, Clock, Star, CheckCircle, ArrowRight } from 'lucide-react';
+import { Shield, Clock, Star, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { createPageUrl } from '../utils';
 import AppShowcase from '../components/home/AppShowcase';
@@ -70,20 +70,20 @@ export default function Home(): JSX.Element {
                 צור קשר עם אנשי מקצוע מאומתים לכל צרכי תחזוקת הבית שלך. תמחור מהיר, אמין ושקוף.
               </p>
 
-              {/* קונטיינר כפתורים ודירוג */}
+             
               <div className="flex flex-col gap-5 w-full max-w-md items-end">
                 
-                {/* שורת הכפתורים העליונה */}
+                
                 <div className="grid grid-cols-2 gap-4 w-full">
                   <Link to={createPageUrl('Services')}>
                     <Button size="lg" className="w-full bg-[#111827] hover:bg-black text-white py-7 text-lg rounded-2xl shadow-xl flex items-center justify-center gap-2">
                       הזמן שירות
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowLeft className="w-5 h-5" />
                     </Button>
                   </Link>
 
                   <Link to={createPageUrl('HowItWorks')}>
-                    <Button size="lg" variant="outline" className="w-full py-7 text-lg rounded-2xl border-2 border-gray-100 bg-white hover:bg-gray-50 text-gray-900 font-medium">
+                    <Button size="lg" variant="outline" className="w-full py-7 text-lg rounded-2xl border-4 border-gray-200 bg-white hover:bg-gray-50 text-gray-900 font-medium">
                       איך זה עובד
                     </Button>
                   </Link>
