@@ -70,7 +70,7 @@ export const PAGES = {
     "TrackService": TrackService,
     "Profile": Profile,
     "HowItWorks": HowItWorks,
-    "Registration": Registration, // זה בעצם ה-Professional
+    "Registration": Registration, 
     "LogIn": LogIn,
     "RegisterRole": RegisterRole, 
     "ForgotPassword": ForgotPassword,
