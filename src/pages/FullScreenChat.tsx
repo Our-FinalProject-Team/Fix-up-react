@@ -46,25 +46,32 @@ export default function Chat() {
   }, []);
 
   // 2. הפעלת החיבור והאזנה להודעות
-  useEffect(() => {
-    if (connection) {
-      connection.start()
-        .then(() => {
-          console.log("Connected to SignalR!");
-          setIsLoading(false);
+  // בתוך הקומפוננטה Chat
+useEffect(() => {
+  if (connection) {
+    connection.start()
+      .then(async () => { // הפיכת הפונקציה ל-async
+        console.log("Connected to SignalR!");
+        
+        // --- החלק החדש שחסר לך: ---
+        try {
+          const history = await axios.get("https://localhost:7230/api/messages/history");
+          setMessages(history.data); // טעינת ההודעות הישנות מה-SQL
+        } catch (err) {
+          console.error("Failed to load history", err);
+        }
+        // --------------------------
 
-          // האזנה לאירוע ReceiveMessage
-          connection.on("ReceiveMessage", (message: Message) => {
-            setMessages(prev => [...prev, message]);
-          });
-        })
-        .catch(e => console.error("Connection failed: ", e));
+        setIsLoading(false);
+        connection.on("ReceiveMessage", (message: Message) => {
+          setMessages(prev => [...prev, message]);
+        });
+      })
+      .catch(e => console.error("Connection failed: ", e));
 
-      return () => {
-        connection.off("ReceiveMessage");
-      };
-    }
-  }, [connection]);
+    return () => { connection.off("ReceiveMessage"); };
+  }
+}, [connection]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

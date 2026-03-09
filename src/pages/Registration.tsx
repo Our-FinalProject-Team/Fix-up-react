@@ -6,6 +6,21 @@ import {
   DollarSign, Eye, EyeOff, ArrowRight, LucideIcon 
 } from "lucide-react";
 
+const SPECIALTY_OPTIONS = [
+  "אינסטלטור",
+  "חשמלאי",
+  "טכנאי מזגנים",
+  "שיפוצניק/קבלן בניה",
+  "צבעי",
+  "מנעולן",
+  "ניקיון",
+  "איש תחזוקה/הידמן",
+  "רצף/מתקין חיפויים",
+  "גנן",
+  "טכנאי מוצרי חשמל",
+  "מתקין מערכות אבטחה"
+];
+
 // 1. הגדרת המבנה של הנתונים
 interface RegistrationForm {
   fullname: string;
@@ -17,13 +32,12 @@ interface RegistrationForm {
   address: string;
 }
 
-// 2. הגדרת הטיפוסים של רכיב הקלט (זה מה שפתר את השגיאות למטה)
 interface InputFieldProps {
   icon: LucideIcon;
   label: string;
   name: string;
   value: string | number;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   type?: string;
   placeholder?: string;
   showToggle?: boolean;
@@ -31,7 +45,7 @@ interface InputFieldProps {
   isVisible?: boolean;
 }
 
-// רכיב העזר לעיצוב השדות (חייב להופיע בקובץ!)
+// רכיב שדה קלט רגיל
 const InputField: React.FC<InputFieldProps> = ({ 
   icon: Icon, label, type = "text", placeholder, value, onChange, name, showToggle, onToggle, isVisible 
 }) => (
@@ -76,31 +90,33 @@ export default function Registration() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!form.specialty) {
+        alert("אנא בחר תחום התמחות");
+        return;
+    }
     setIsSubmitting(true);
 
     try {
-   const professionalData = {
-  // השמות כאן חייבים להיות בדיוק כמו ב-Swagger (שימי לב לאותיות גדולות/קטנות)
-  fullName: form.fullname,
-  email: form.email,
-  phoneNumber: form.phone, // שיניתי ל-phoneNumber כי זה מה שכתבת שמופיע בסווגר
-  specialty: form.specialty,
-  baseHourlyRate: Number(form.basehourprice),
-  callOutFee: 150, 
-  address: form.address,
-  averageRating: 0, // שדות ברירת מחדל כדי שהשרת לא יתלונן
-  totalReviews: 0
+      const professionalData = {
+        fullName: form.fullname,
+        email: form.email,
+        phoneNumber: form.phone,
+        specialty: form.specialty,
+        baseHourlyRate: Number(form.basehourprice),
+        callOutFee: 150, 
+        address: form.address,
+        averageRating: 0,
+        totalReviews: 0
+      };
 
-};
-
-      const response = await axios.post(
+      await axios.post(
        `https://localhost:7230/api/Professionals/register?password=${form.password}`,
         professionalData
       );
@@ -120,34 +136,53 @@ export default function Registration() {
         animate={{ opacity: 1 }}
         className="max-w-md w-full bg-white rounded-[32px] p-8 shadow-xl"
       >
-        <h2 className="text-2xl font-bold text-center mb-8">Professional Registration</h2>
+        <h2 className="text-2xl font-bold text-center mb-8 text-stone-800">רישום בעל מקצוע</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField icon={User} label="Full Name" name="fullname" value={form.fullname} onChange={handleChange} />
-          <InputField icon={Mail} label="Email" name="email" type="email" value={form.email} onChange={handleChange} />
+          
+          <InputField icon={User} label="שם מלא" name="fullname" value={form.fullname} onChange={handleChange} placeholder="ישראל ישראלי" />
+          
+          <InputField icon={Mail} label="אימייל" name="email" type="email" value={form.email} onChange={handleChange} placeholder="israel@example.com" />
+          
           <InputField 
-            icon={Lock} label="Password" name="password" 
+            icon={Lock} label="סיסמה" name="password" 
             type={showPassword ? "text" : "password"} 
             value={form.password} onChange={handleChange}
             showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword}
           />
-          <InputField
-  icon={MapPin} // ודאי ש-MapPin מיובא מ-lucide-react למעלה
-  label="Address"
-  name="address"
-  placeholder="Street, City"
-  value={form.address}
-  onChange={handleChange}
-/>
-          <InputField icon={Phone} label="Phone" name="phone" value={form.phone} onChange={handleChange} />
-          <InputField icon={Briefcase} label="Specialty" name="specialty" value={form.specialty} onChange={handleChange} />
-          <InputField icon={DollarSign} label="Price per Hour" name="basehourprice" type="number" value={form.basehourprice} onChange={handleChange} />
+          
+          <InputField icon={MapPin} label="כתובת" name="address" placeholder="עיר, רחוב" value={form.address} onChange={handleChange} />
+          
+          <InputField icon={Phone} label="טלפון" name="phone" value={form.phone} onChange={handleChange} placeholder="050-0000000" />
+          
+          {/* שדה בחירת התמחות (Select) במקום טקסט חופשי */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-stone-600">תחום התמחות</label>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+                <Briefcase className="w-5 h-5" />
+              </div>
+              <select
+                name="specialty"
+                value={form.specialty}
+                onChange={handleChange}
+                className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:border-emerald-500 outline-none transition-all appearance-none text-stone-700"
+              >
+                <option value="">בחר תחום...</option>
+                {SPECIALTY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <InputField icon={DollarSign} label="מחיר לשעה" name="basehourprice" type="number" value={form.basehourprice} onChange={handleChange} />
           
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold disabled:opacity-50"
+            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-50 mt-4"
           >
-            {isSubmitting ? "Saving..." : "Create Account"}
+            {isSubmitting ? "שומר נתונים..." : "צור חשבון בעל מקצוע"}
           </button>
         </form>
       </motion.div>
