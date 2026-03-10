@@ -61,7 +61,7 @@ import Registration from './pages/Registration.tsx';
 import  LogIn   from './pages/LogIn.tsx';
 import ReviewForm from './pages/ReviewForm.tsx';
 import FullScreenChat from './pages/FullScreenChat.tsx'
-
+import payment from './pages/payment.tsx';
 export const PAGES = {
    
     "Home": Home,
@@ -77,6 +77,7 @@ export const PAGES = {
     "ClientRegister": ClientRegister,
     "ReviewForm":ReviewForm,
     "FullScreenChat":FullScreenChat,
+    "payment":payment
 };
 
 
