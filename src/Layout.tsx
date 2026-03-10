@@ -195,12 +195,30 @@ const navItems = [
               
               <div>
                 <h4 className="font-semibold mb-4">שירותים</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">אינסטלציה</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">חשמל</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">מערכות למיזוג אויר</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">צביעה</a></li>
-                </ul>
+                <div className="space-y-2 text-sm text-gray-400">
+               <div>
+                    <Link 
+                          to={createPageUrl('Services') + `?category=${'אינסטלציה'}`}> {'אינסטלציה'}              
+                    </Link>
+               </div>
+               <div>
+                    <Link 
+                         to={createPageUrl('Services') + `?category=${'חשמל'}`}> {'חשמל'}              
+                   </Link>
+              </div>
+                
+              <div>
+                  <Link 
+                      to={createPageUrl('Services') + `?category=${'מערכות למיזוג אויר'}`}> {'מערכות למיזוג אויר'}              
+                </Link>
+              </div>
+               
+              <div>
+                  <Link 
+                      to={createPageUrl('Services') + `?category=${'צביעה'}`}> {'צביעה'}              
+                  </Link>
+              </div>                 
+              </div>
               </div>
               
               <div>
