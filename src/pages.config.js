@@ -47,7 +47,9 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-
+import ForgotPassword from './pages/ForgotPassword.tsx';
+import RegisterRole from './pages/RegisterRole.tsx';
+import ClientRegister from './pages/ClientRegister.tsx';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import BookService from './pages/BookService';
@@ -57,20 +59,30 @@ import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.tsx';
 import Registration from './pages/Registration.tsx';
 import  LogIn   from './pages/LogIn.tsx';
-
+import ReviewForm from './pages/ReviewForm.tsx';
+import FullScreenChat from './pages/FullScreenChat.tsx'
+import payment from './pages/payment.tsx';
 export const PAGES = {
+   
     "Home": Home,
     "Services": Services,
     "BookService": BookService,
     "TrackService": TrackService,
     "Profile": Profile,
     "HowItWorks": HowItWorks,
-    "Registration": Registration,
+    "Registration": Registration, 
     "LogIn": LogIn,
-}
+    "RegisterRole": RegisterRole, 
+    "ForgotPassword": ForgotPassword,
+    "ClientRegister": ClientRegister,
+    "ReviewForm":ReviewForm,
+    "FullScreenChat":FullScreenChat,
+    "payment":payment
+};
+
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "RegisterRole",
     Pages: PAGES,
     Layout: __Layout,
 };

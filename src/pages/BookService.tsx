@@ -126,8 +126,7 @@ export default function BookService() {
           </div>
         </div>
       </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-6">
+ <div className="max-w-3xl mx-auto px-4 py-6">
         {/* Step 1: Service Details */}
         {step === 1 && (
           <motion.div
@@ -326,7 +325,10 @@ export default function BookService() {
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
               >
 
+
                 םםםהמשך לתשלום
+
+                
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

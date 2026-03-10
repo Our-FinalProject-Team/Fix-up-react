@@ -22,12 +22,13 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { name: 'עמוד הבית', icon: Home, page: 'Home' },
+const navItems = [   
     { name: 'שירותים', icon: Search, page: 'Services' },
     { name: 'מסלול', icon: MapPin, page: 'TrackService' },
-    { name: 'פרופיל', icon: User, page: 'Profile' },
-    
+    { name: 'פרופיל', icon: User, page: 'Profile' },   
+    { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
+     { name: 'איך זה עובד', icon: User, page: 'HowItWorks' }, 
+     { name: 'עמוד הבית', icon: Home, page: 'Home' },
   ];
 
   const isFullScreenPage = ['TrackService'].includes(currentPageName);
@@ -62,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
                     {item.name}
                   </Link>
                 ))}
-                <Link
+                {/* <Link
                   to={createPageUrl('HowItWorks')}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                     currentPageName === 'HowItWorks'
@@ -71,14 +72,14 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
                   }`}
                 >
                   איך זה עובד 
-                </Link>
+                </Link> */}
               </nav>
 
               {/* CTA Button */}
               <div className="hidden md:flex items-center gap-3">
-                <Link to={createPageUrl('Services')}>
+                <Link to={createPageUrl('LogIn')}>
                   <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6">
-                    הזמן עכשיו
+                  התחברות
                   </Button>
                 </Link>
               </div>

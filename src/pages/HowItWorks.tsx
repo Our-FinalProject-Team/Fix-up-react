@@ -55,7 +55,7 @@ const steps: Step[] = [
     number: '03',
     icon: UserCheck,
     title: 'קבל התאמה',
-    description: 'אנו מקצים את איש המקצוע בעל הדירוג הטוב ביותר באזור שלך. עקוב אחר הגעתו בזמן אמת.',
+    description: 'תוכל לשאול שאלות בצאט מקצועי של בעלי מקצוע ולבחור מתוכם מי הכי מתאים לך להזמין',
     color: 'from-blue-400 to-indigo-500',
     bg: 'bg-blue-50'
   },
