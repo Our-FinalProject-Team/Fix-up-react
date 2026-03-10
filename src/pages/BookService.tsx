@@ -321,7 +321,6 @@ export default function BookService() {
                 חזרה
               </Button>
               <Button
-                //onClick={() => setStep(3)}
                onClick={()=>createPageUrl('payment')}
                 disabled={!selectedTime || !address}
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
