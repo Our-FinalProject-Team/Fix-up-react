@@ -1,9 +1,9 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, ArrowRight, LucideIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import api from "./api"; // ודאי שהנתיב נכון
+import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, LucideIcon } from "lucide-react";
 
-// רכיב שדה קלט (כמו בטופס הקודם שלך)
 interface InputFieldProps {
   icon: LucideIcon;
   label: string;
@@ -30,10 +30,10 @@ const InputField: React.FC<InputFieldProps> = ({ icon: Icon, label, type = "text
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className="w-full pl-12 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-xl focus:border-emerald-500 outline-none transition-all"
+        className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-amber-500 outline-none transition-all text-right"
       />
       {showToggle && (
-        <button type="button" onClick={onToggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
+        <button type="button" onClick={onToggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-amber-600">
           {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       )}
@@ -42,16 +42,16 @@ const InputField: React.FC<InputFieldProps> = ({ icon: Icon, label, type = "text
 );
 
 export default function ClientRegister() {
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     fullname: "",
     email: "",
-    password: "",
     phone: "",
     address: "",
+    password: "",
   });
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -62,45 +62,44 @@ export default function ClientRegister() {
     setIsSubmitting(true);
 
     try {
-      // שליחה ל-ClientsController לפי ה-Swagger שלך
-      const response = await axios.post(
-        `https://localhost:7230/api/Clients/register?password=${form.password}`,
-        {
+      const registrationData = {
+        clientInfo: {
           fullName: form.fullname,
           email: form.email,
           phoneNumber: form.phone,
           address: form.address,
-          myRequests: [] // השרת מצפה לרשימה, אנחנו שולחים ריק ברישום
-        }
-      );
+        },
+        password: form.password
+      };
 
-      alert("נרשמת בהצלחה כלקוח!");
-      window.location.href = "/login"; // העברה ללוגין
+      await api.post("/Clients/register", registrationData);
+      alert("לקוח נרשם בהצלחה!");
+      navigate("/login");
     } catch (error: any) {
-      console.error(error);
-      alert("שגיאה ברישום: " + (error.response?.data || "נסה שוב"));
+      alert("שגיאה ברישום: " + (error.response?.data || "בדקי חיבור לשרת"));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-md w-full bg-white rounded-3xl p-8 shadow-lg border border-stone-100">
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6 text-right" dir="rtl">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-stone-100">
         <h2 className="text-2xl font-bold text-stone-800 mb-6 text-center">רישום לקוח חדש</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <InputField icon={User} label="שם מלא" name="fullname" value={form.fullname} onChange={handleChange} placeholder="ישראל ישראלי" />
-          <InputField icon={Mail} label="אימייל" name="email" type="email" value={form.email} onChange={handleChange} placeholder="israel@gmail.com" />
+          <InputField icon={Mail} label="אימייל" name="email" type="email" value={form.email} onChange={handleChange} placeholder="example@mail.com" />
           <InputField icon={Phone} label="טלפון" name="phone" value={form.phone} onChange={handleChange} placeholder="050-0000000" />
           <InputField icon={MapPin} label="כתובת" name="address" value={form.address} onChange={handleChange} placeholder="עיר, רחוב" />
-          <InputField icon={Lock} label="סיסמה" name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={handleChange} showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword} />
+          <InputField 
+            icon={Lock} label="סיסמה" name="password" 
+            type={showPassword ? "text" : "password"} 
+            value={form.password} onChange={handleChange} 
+            showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword} 
+          />
           
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all disabled:opacity-50"
-          >
-            {isSubmitting ? "רושם אותך..." : "צור חשבון לקוח"}
+          <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-amber-600 text-white rounded-2xl font-bold hover:bg-amber-700 transition-all disabled:opacity-50 mt-6">
+            {isSubmitting ? "רושם אותך..." : "הרשמה כלקוח"}
           </button>
         </form>
       </motion.div>
