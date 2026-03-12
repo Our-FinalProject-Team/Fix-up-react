@@ -85,10 +85,10 @@ export default function LogIn() {
 
     // 3. שמירת פרטי המשתמש (בלי הטוקן!)
     // הטוקן כבר נשמר אוטומטית על ידי הדפדפן בקוקי
-    const userData = {
-      ...response.data, // כאן יחזור ה-User וה-Role מה-C#
-      role: isPro ? 'pro' : 'client'
-    };
+    // const userData = {
+    //   ...response.data, // כאן יחזור ה-User וה-Role מה-C#
+    //   role: isPro ? 'pro' : 'client'
+    // };
     
     //localStorage.setItem("user", JSON.stringify(userData));
 

@@ -1,10 +1,10 @@
-import React, { useState, ChangeEvent, FormEvent,useRef } from "react";
+import  { useState, ChangeEvent, FormEvent,useRef } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { User, Mail, Lock, Phone, MapPin, Eye, EyeOff, ArrowRight, LucideIcon } from "lucide-react";
+import { User, Mail, Lock, Phone, MapPin,   } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
 import { validateEmail, validatePassword, validatePhone } from "@/lib/Validation";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 interface RegistrationForm {
   fullname: string;

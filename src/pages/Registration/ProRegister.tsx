@@ -1,13 +1,13 @@
-import React, { useState, ChangeEvent, FormEvent,useRef, forwardRef } from "react";
+import { useState, ChangeEvent, FormEvent,useRef } from "react";
 import axios from 'axios';
 import { motion } from "framer-motion";
 import { 
   User, Mail, Lock, Phone, Briefcase, MapPin,
-  DollarSign, Eye, EyeOff, ArrowRight, LucideIcon, 
-  Link
+  DollarSign, 
+  
 } from "lucide-react";
 import { validateEmail, validatePassword, validatePhone } from "@/lib/Validation";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { InputField } from "@/components/ui/InputField";
 
 const SPECIALTY_OPTIONS = [
