@@ -55,34 +55,57 @@ export default function LogIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPro, setIsPro] = useState(true);
+  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    const controller = isPro ? "Professionals" : "Clients";
-    const url = `https://localhost:7230/api/${controller}/login?email=${form.email}&password=${form.password}`;
+ const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    try {
-      const response = await axios.post(url);
-      localStorage.setItem("user", JSON.stringify(response.data));
-      localStorage.setItem("userType", isPro ? "pro" : "client");
-      
-      alert(`שלום, ${response.data.fullName || "משתמש"}!`);
-      
-      // הניווט שחיכית לו:
-      navigate("/Home"); 
-      
-    } catch (error: any) {
-      alert("התחברות נכשלה: בדקי את המייל והסיסמה");
-    } finally {
-      setIsSubmitting(false);
+  try {
+    // 1. שינוי ה-URL לכתובת נקייה (בלי סימני שאלה ופרמטרים)
+    const url = isPro 
+      ? `https://localhost:7230/api/Professionals/login`
+      : `https://localhost:7230/api/Clients/login`;
+
+    // 2. שליחת הנתונים בתוך ה-Body של ה-POST
+    // והוספת withCredentials: true כדי שהקוקי יישמר בדפדפן
+   const response = await axios({
+    method: 'post',
+    url: url,
+    data: {
+        email: form.email,
+        password: form.password
+    },
+    withCredentials: true
+});
+
+    // 3. שמירת פרטי המשתמש (בלי הטוקן!)
+    // הטוקן כבר נשמר אוטומטית על ידי הדפדפן בקוקי
+    const userData = {
+      ...response.data, // כאן יחזור ה-User וה-Role מה-C#
+      role: isPro ? 'pro' : 'client'
+    };
+    
+    //localStorage.setItem("user", JSON.stringify(userData));
+
+    alert("התחברת בהצלחה!");
+    
+    if (isPro) {
+      navigate("/ProDashboard");
+    } else {
+      navigate("/Home");
     }
-  };
 
+  } catch (error: any) {
+    alert("שגיאה בהתחברות: " + (error.response?.data || "בדוק פרטים"));
+  } finally {
+    setIsSubmitting(false);
+  }
+}
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-stone-100">

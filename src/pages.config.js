@@ -49,7 +49,7 @@
  */
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import RegisterRole from './pages/RegisterRole.tsx';
-import ClientRegister from './pages/ClientRegister.tsx';
+import ClientRegister from './pages/Registration/ClientRegister.tsx';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import BookService from './pages/BookService';
@@ -57,8 +57,8 @@ import TrackService from './pages/TrackService';
 import Profile from './pages/Profile';
 import HowItWorks from './pages/HowItWorks';
 import __Layout from './Layout.tsx';
-import Registration from './pages/Registration.tsx';
-import  LogIn   from './pages/LogIn.tsx';
+import Registration from './pages/Registration/ProRegister.tsx';
+import  LogIn   from './pages/LogIn/LogIn.tsx';
 import ReviewForm from './pages/ReviewForm.tsx';
 import FullScreenChat from './pages/FullScreenChat.tsx'
 import payment from './pages/payment.tsx';
