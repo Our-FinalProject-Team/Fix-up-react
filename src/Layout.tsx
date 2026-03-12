@@ -27,7 +27,7 @@ const navItems = [
     { name: 'מסלול', icon: MapPin, page: 'TrackService' },
     { name: 'פרופיל', icon: User, page: 'Profile' },   
     { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
-     { name: 'תגובה', icon: User, page: 'ReviewForm' }, 
+     { name: 'איך זה עובד', icon: User, page: 'HowItWorks' }, 
      { name: 'עמוד הבית', icon: Home, page: 'Home' },
   ];
 
@@ -63,7 +63,7 @@ const navItems = [
                     {item.name}
                   </Link>
                 ))}
-                <Link
+                {/* <Link
                   to={createPageUrl('HowItWorks')}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                     currentPageName === 'HowItWorks'
@@ -72,7 +72,7 @@ const navItems = [
                   }`}
                 >
                   איך זה עובד 
-                </Link>
+                </Link> */}
               </nav>
 
               {/* CTA Button */}

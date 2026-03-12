@@ -1,178 +1,222 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import * as signalR from "@microsoft/signalr";
+import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
 import ChatHeader from "../components/chat/chatHeader";
 import ChatInput from "../components/chat/ChatInput";
 import MessageBubble from "../components/chat/MessageBubble";
-import DateDivider from "../components/chat/DateDivider";
 
-// --- Interfaces המעודכנים ---
+// --- פונקציות עזר מוגנות (מחוץ לקומפוננטה) ---
+const getAvatarColor2 = (name: any): string => {
+  // הגנה קריטית: אם השם לא קיים או לא מחרוזת, מחזירים צבע ברירת מחדל ולא קורסים
+  if (!name || typeof name !== 'string') return "bg-gray-400";
+  
+  const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-pink-500", "bg-indigo-500", "bg-teal-500"];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+};
+
+const getInitials = (name: any): string => {
+  if (!name || typeof name !== 'string') return "U";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return name[0] ? name[0].toUpperCase() : "U";
+};
+
+const formatDateTime = (dateString?: string) => {
+  if (!dateString) return "";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  } catch (e) {
+    return "";
+  }
+};
+
 interface User {
   email: string;
   full_name: string;
+  role: "Client" | "Technician";
+  categoryId?: number;
+  isGuest?: boolean;
 }
 
 interface Message {
-  id: string;
+  id?: string;
   content: string;
-  sender_email: string;
-  created_date: string;
-  image_url?: string; // הוספנו תמיכה בקישור לתמונה מהענן
+  senderName: string;
+  senderRole: string;
+  imageUrl?: string;
+  createdAt?: string;
+  categoryId: number;
 }
 
 export default function Chat() {
-  const [currentUser, setCurrentUser] = useState<User | null>({
-    email: 'user@example.com',
-    full_name: 'User Name',
-  });
-  const [sending, setSending] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  
-  // הודעות דוגמה הכוללות תמונה (כדי שתראי איך זה נראה)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: 'היי, יש לי תקלה בברז במטבח',
-      sender_email: 'user@example.com',
-      created_date: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-    },
-    {
-      id: '2',
-      content: 'תוכל לשלוח לי צילום של הנזילה?',
-      sender_email: 'otheruser@example.com',
-      created_date: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    },
-    {
-      id: '3',
-      content: 'הנה התמונה:',
-      sender_email: 'user@example.com',
-      created_date: new Date().toISOString(),
-      image_url: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg' // דוגמה לתמונה מהענן
-    },
-  ]);
 
-  // גלילה אוטומטית למטה
+  // 1. טעינת משתמש
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setCurrentUser({ ...JSON.parse(savedUser), isGuest: false });
+    } else {
+      setCurrentUser({
+        email: "guest@example.com",
+        full_name: "אורח",
+        role: "Client",
+        isGuest: true
+      });
+    }
+  }, []);
+
+  // 2. חיבור וטעינת היסטוריה
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const newConnection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7230/chatHub")
+      .withAutomaticReconnect()
+      .build();
+
+    newConnection.start()
+      .then(async () => {
+        console.log("Connected to SignalR!");
+        setConnection(newConnection);
+        
+        try {
+          const history = await axios.get("https://localhost:7230/api/messages/history");
+          // ודא שהנתונים שמגיעים הם מערך
+          setMessages(Array.isArray(history.data) ? history.data : []);
+        } catch (err) {
+          console.error("Failed to load history", err);
+        } finally {
+          setIsLoading(false);
+        }
+
+        newConnection.on("ReceiveMessage", (message: Message) => {
+          setMessages(prev => [...prev, message]);
+        });
+      })
+      .catch(e => {
+        console.error("Connection failed: ", e);
+        setIsLoading(false);
+      });
+
+    return () => { 
+        if(newConnection) newConnection.off("ReceiveMessage"); 
+    };
+  }, [currentUser]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // --- לוגיקת השליחה המעודכנת ---
-  const handleSend = useCallback(
-    async (content: string, imageFile?: File) => {
-      if (!currentUser || sending) return;
-      if (!content.trim() && !imageFile) return;
-
-      setSending(true);
+  const handleSend = useCallback(async (content: string, file?: File) => {
+      if (!currentUser || currentUser.isGuest) {
+        alert("אורחים אינם מורשים לשלוח הודעות");
+        return;
+      }
 
       try {
-        // הכנת הנתונים למשלוח לשרת ה-#C
-        const formData = new FormData();
-        formData.append("content", content);
-        formData.append("sender_email", currentUser.email);
-        
-        if (imageFile) {
-          formData.append("image", imageFile); // השרת יקבל את זה ויעלה ל-Cloudinary
+        let uploadedUrl = "";
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          const uploadRes = await axios.post("https://localhost:7230/api/messages/upload", formData);
+          uploadedUrl = uploadRes.data.url;
         }
 
-        // שליחה ל-API שלך (תחליפי לכתובת ה-Render/Localhost שלך)
-        const response = await fetch("https://your-api.com/api/chat/send", {
-          method: "POST",
-          body: formData, // שליחת FormData במקום JSON
-        });
+        const messageDto = {
+          content: content,
+          senderName: currentUser.full_name,
+          senderRole: currentUser.role,
+          imageUrl: uploadedUrl || "",
+          categoryId: currentUser.categoryId || 0 
+        };
 
-        if (!response.ok) throw new Error("Failed to send");
-
-        const newMessage = await response.json();
-        
-        // עדכון ה-UI עם ההודעה החדשה שחזרה מהשרת (כולל ה-URL של התמונה)
-        setMessages(prev => [...prev, newMessage]);
-
+        await axios.post("https://localhost:7230/api/messages/send", messageDto);
       } catch (error) {
-        console.error("Error sending message:", error);
-        alert("שגיאה בשליחת ההודעה");
-      } finally {
-        setSending(false);
+        console.error("Error in handleSend:", error);
       }
-    },
-    [currentUser, sending]
-  );
+    }, [currentUser]);
 
-  // חישובים לתצוגה
-  const uniqueSenders = new Set(messages.map((m) => m.sender_email)).size;
+  const displayMessages = messages.filter(msg => {
+    if (!currentUser) return false;
+    if (currentUser.role === "Client") return true;
+    return msg.categoryId === currentUser.categoryId || msg.categoryId === 0;
+  });
 
-  const shouldShowAvatar = (msg: Message, idx: number) => {
-    if (idx === 0) return true;
-    const prev = messages[idx - 1];
-    if (prev.sender_email !== msg.sender_email) return true;
-    const prevDate = new Date(prev.created_date);
-    const currDate = new Date(msg.created_date);
-    return currDate.getTime() - prevDate.getTime() > 5 * 60 * 1000;
-  };
-
-  const shouldShowDate = (msg: Message, idx: number) => {
-    if (idx === 0) return true;
-    const prev = messages[idx - 1];
-    const prevDay = format(new Date(prev.created_date), "yyyy-MM-dd");
-    const currDay = format(new Date(msg.created_date), "yyyy-MM-dd");
-    return prevDay !== currDay;
-  };
-
-  if (!currentUser) {
+  if (isLoading || !currentUser) {
     return (
-      <div className="h-screen flex items-center justify-center bg-zinc-50">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-300" />
+      <div className="h-screen flex items-center justify-center bg-zinc-50 font-sans">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <p className="mr-2 text-zinc-500">טוען צ'אט...</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      <ChatHeader onlineCount={Math.max(uniqueSenders, 1)} />
+    <div className="h-screen flex flex-col overflow-hidden font-sans">
+      <ChatHeader onlineCount={1} />
 
-      <div 
-        className="flex-1 overflow-y-auto px-4 py-4 relative"
-        style={{
-          backgroundColor: "#f0f2f5",
-          backgroundImage: `url('https://www.transparenttextures.com/patterns/subtle-dots.png')`,
-          backgroundAttachment: 'fixed'
-        }}
-      >
-        <div className="max-w-3xl mx-auto space-y-1 relative z-10">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-32 text-center">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
-                <span className="text-2xl">💬</span>
+      <div className="flex-1 overflow-y-auto px-4 py-4" style={{ backgroundColor: "#f0f2f5" }}>
+        <div className="max-w-3xl mx-auto space-y-4">
+          {displayMessages.map((msg, idx) => {
+            const isOwn = msg.senderName === currentUser.full_name;
+            return (
+              <div key={idx} className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full ${getAvatarColor2(msg.senderName)} text-white flex items-center justify-center text-[10px] font-bold shadow-sm`}>
+                  {getInitials(msg.senderName)}
+                </div>
+
+                <div className="max-w-[80%]">
+                   <MessageBubble
+                    message={{
+                        ...msg,
+                        createdAt: formatDateTime(msg.createdAt) 
+                    }}
+                    isOwn={isOwn}
+                    showAvatar={false}
+                  />
+                </div>
               </div>
-              <h2 className="text-lg font-semibold text-zinc-700 mb-1">אין הודעות עדיין</h2>
-              <p className="text-sm text-zinc-400">תהיו הראשונים לכתוב משהו!</p>
-            </div>
-          ) : (
-            messages.map((msg, idx) => {
-              const isOwn = msg.sender_email === currentUser.email;
-              const showDate = shouldShowDate(msg, idx);
-              const showAvatar = shouldShowAvatar(msg, idx);
-              return (
-                <React.Fragment key={msg.id}>
-                  {showDate && <DateDivider date={msg.created_date} />}
-                  <div className={showAvatar && idx > 0 ? "pt-3" : "pt-0.5"}>
-                    <MessageBubble
-                      message={msg}
-                      isOwn={isOwn}
-                      showAvatar={showAvatar}
-                    />
-                  </div>
-                </React.Fragment>
-              );
-            })
-          )}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      <div className="bg-white border-t border-zinc-200 p-2">
+      <div className="bg-white border-t p-4 shadow-lg">
         <div className="max-w-3xl mx-auto">
-          {/* וודאי ש-ChatInput שלך מקבל imageFile בפונקציית ה-onSend */}
-          <ChatInput onSend={handleSend} disabled={sending} />
+          {currentUser.isGuest ? (
+            <div className="flex items-center justify-between bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold border border-blue-200">?</div>
+                <div>
+                  <p className="text-sm font-bold text-blue-900">מצב אורח</p>
+                  <p className="text-xs text-blue-700">התחברי כדי לכתוב</p>
+                </div>
+              </div>
+              <button onClick={() => window.location.href = '/login'} className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold">התחברות</button>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <div className={`w-6 h-6 rounded-full ${getAvatarColor2(currentUser.full_name)} text-white flex items-center justify-center text-[10px] font-bold`}>
+                   {getInitials(currentUser.full_name)}
+                </div>
+                <span className="text-xs text-gray-500 font-bold">כותבת כעת: {currentUser.full_name}</span>
+              </div>
+              <ChatInput onSend={handleSend} disabled={!connection} />
+            </>
+          )}
         </div>
       </div>
     </div>

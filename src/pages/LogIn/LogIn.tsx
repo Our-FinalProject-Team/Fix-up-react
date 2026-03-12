@@ -1,9 +1,8 @@
-
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import api from "./api"; // ודאי שהנתיב ל-api.ts נכון (באותה תיקייה)
-import { Mail, Lock, Eye, EyeOff, User, Briefcase, LucideIcon } from "lucide-react";
+import api from "../api"; // ודאי שהנתיב לתיקיית ה-api נכון
+import { Mail, Lock, Eye, EyeOff, LucideIcon } from "lucide-react";
 
 interface InputFieldProps {
   icon: LucideIcon;
@@ -22,7 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({
   icon: Icon, label, type = "text", placeholder, value, onChange, name, showToggle, onToggle, isVisible 
 }) => (
   <div className="space-y-2">
-    <label className="block text-sm font-medium text-stone-600">{label}</label>
+    <label className="block text-sm font-medium text-stone-600 text-right">{label}</label>
     <div className="relative">
       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
         <Icon size={18} />
@@ -33,6 +32,7 @@ const InputField: React.FC<InputFieldProps> = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        dir="rtl"
         className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-right"
       />
       {showToggle && (
@@ -60,30 +60,27 @@ export default function LogIn() {
     setIsSubmitting(true);
 
     try {
-      // שליחת הלוגין ב-Body (במקום ב-URL)
       const endpoint = isPro ? "/Professionals/login" : "/Clients/login";
       
-      // השרת מצפה לאובייקט עם Email ו-Password
       const response = await api.post(endpoint, {
         email: form.email,
         password: form.password
       });
 
-      // שמירת הטוקן והתפקיד שהשרת החזיר ב-AuthResponseDto
       const { token, role } = response.data;
       localStorage.setItem("userToken", token);
       localStorage.setItem("userRole", role);
 
       alert("התחברת בהצלחה!");
       
-      // ניווט לפי התפקיד
-      if (role === "Professional") {
+      if (role === "Professional" || isPro) {
         navigate("/pro-dashboard");
       } else {
         navigate("/client-home");
       }
 
     } catch (error: any) {
+      console.error(error);
       alert("שגיאה בהתחברות: " + (error.response?.data || "בדקי אימייל וסיסמה"));
     } finally {
       setIsSubmitting(false);
@@ -95,7 +92,6 @@ export default function LogIn() {
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl">
         <h2 className="text-3xl font-bold text-stone-800 mb-8 text-center">התחברות</h2>
         
-        {/* בחירת סוג משתמש */}
         <div className="flex bg-stone-100 p-1 rounded-2xl mb-8">
           <button onClick={() => setIsPro(true)} className={`flex-1 py-3 rounded-xl font-bold transition-all ${isPro ? 'bg-white shadow text-emerald-600' : 'text-stone-500'}`}>
             בעל מקצוע
