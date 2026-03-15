@@ -19,7 +19,7 @@ interface ToastItem {
 }
 
 export const Toaster: React.FC = () => {
-  const { toasts } = useToast();
+  const { toasts,dismiss } = useToast();
 
   return (
     <ToastProvider>
@@ -34,7 +34,7 @@ export const Toaster: React.FC = () => {
               )}
             </div>
             {action}
-            <ToastClose />
+            <ToastClose onClick={() => dismiss(id)} />
           </Toast>
         );
       })}

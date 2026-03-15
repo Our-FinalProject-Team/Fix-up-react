@@ -63,6 +63,7 @@ export default function ClientRegister() {
           email: form.email,
           phoneNumber: form.phone,
           address: form.address,
+          myRequests:[],
           password: form.password
       };
       
@@ -104,15 +105,29 @@ if (!validateEmail(form.email)) {
       window.location.href = "/login"; 
       }, 8000);
 
-    } catch (error: any) {
-      toast({
-      title: "שגיאה ברישום",
-      description: error.response?.data || "בדקי שהשרת דלוק",
-      variant: "destructive",
-      duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
+    } catch (err: any) {
+      console.error("Registration Error:", err.response?.data);
 
-    });    
-  } finally {
+      // חילוץ הודעת השגיאה מהשרת בצורה חכמה
+      let message = "אירעה שגיאה ברישום. בדקי שהשרת דלוק.";
+      
+      if (err.response?.data) {
+        // אם השרת החזיר אובייקט שגיאות של ASP.NET
+        if (typeof err.response.data === 'object') {
+           message = err.response.data.title || JSON.stringify(err.response.data.errors) || "נתונים לא תקינים";
+        } else {
+           message = err.response.data; // אם זה רק מחרוזת טקסט
+        }
+      }
+
+      setError(message); // שומרים רק מחרוזת (String) ב-State
+
+      toast({
+        title: "שגיאה ברישום",
+        description: message,
+        variant: "destructive",
+      });     
+    } finally {
       setIsSubmitting(false);
     }
   };

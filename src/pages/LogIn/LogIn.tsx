@@ -52,15 +52,20 @@ export default function LogIn() {
       }
     }     
     catch (error: any) {
-      console.error(error);
-      const errorMessage = error.response?.data?.title || "אירעה שגיאה בחיבור";
-      toast({
-      title: "שגיאה בכניסה",
-      description: errorMessage,
-      variant: "destructive",
-      duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
-    });   
-  };
+  console.error(error);
+  const errorMessage = error.response?.data?.title || "אירעה שגיאה בחיבור";
+  toast({
+    title: "שגיאה בכניסה",
+    description: errorMessage,
+    variant: "destructive",
+    duration: 3000,
+  });
+}
+finally {
+  setIsSubmitting(false);
+}
+}; 
+  
 
   return (
     <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
@@ -97,5 +102,4 @@ export default function LogIn() {
       </div>
     </div>
   );
-  }
 }
