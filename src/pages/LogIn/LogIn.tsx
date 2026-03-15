@@ -1,48 +1,11 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import  { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import api from "../api"; // ודאי שהנתיב לתיקיית ה-api נכון
+import api from "../api";  
 import { Mail, Lock, Eye, EyeOff, LucideIcon } from "lucide-react";
+import { InputField } from "@/components/ui/InputField";
+import { toast } from "@/components/ui/use-toast";
 
-interface InputFieldProps {
-  icon: LucideIcon;
-  label: string;
-  name: string;
-  value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  type?: string;
-  placeholder?: string;
-  showToggle?: boolean;
-  onToggle?: () => void;
-  isVisible?: boolean;
-}
-
-const InputField: React.FC<InputFieldProps> = ({ 
-  icon: Icon, label, type = "text", placeholder, value, onChange, name, showToggle, onToggle, isVisible 
-}) => (
-  <div className="space-y-2">
-    <label className="block text-sm font-medium text-stone-600 text-right">{label}</label>
-    <div className="relative">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
-        <Icon size={18} />
-      </div>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        dir="rtl"
-        className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-right"
-      />
-      {showToggle && (
-        <button type="button" onClick={onToggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
-          {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      )}
-    </div>
-  </div>
-);
 
 export default function LogIn() {
   const navigate = useNavigate();
@@ -71,17 +34,27 @@ export default function LogIn() {
       localStorage.setItem("userToken", token);
       localStorage.setItem("userRole", role);
 
-      alert("התחברת בהצלחה!");
+       toast({
+                 title: "נכנסת בהצלחה",
+                 description: "ברוך הבא",
+                 className: "bg-emerald-600 text-white border-none shadow-2xl font-bold p-6",
+               });
       
       if (role === "Professional" || isPro) {
-        navigate("/pro-dashboard");
+        navigate("/ProDashBoard");
       } else {
-        navigate("/client-home");
+        navigate("/Profile");
       }
 
     } catch (error: any) {
       console.error(error);
-      alert("שגיאה בהתחברות: " + (error.response?.data || "בדקי אימייל וסיסמה"));
+      const errorMessage = error.response?.data?.title || "אירעה שגיאה בחיבור";
+      toast({
+      title: "שגיאה בכניסה",
+      description: errorMessage,
+      variant: "destructive",
+      duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
+    });
     } finally {
       setIsSubmitting(false);
     }
