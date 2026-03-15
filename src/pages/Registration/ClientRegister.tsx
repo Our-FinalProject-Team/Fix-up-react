@@ -5,6 +5,7 @@ import { User, Mail, Lock, Phone, MapPin,   } from "lucide-react";
 import { InputField } from "@/components/ui/InputField";
 import { validateEmail, validatePassword, validatePhone } from "@/lib/Validation";
 import { toast } from "@/components/ui/use-toast";
+import api from "../api";
 
 interface RegistrationForm {
   fullname: string;
@@ -57,14 +58,14 @@ export default function ClientRegister() {
 
     try {
 
-      const ClientData = {
-        fullName: form.fullname,
-        email: form.email,
-        phoneNumber: form.phone,
-        address: form.address,
-        myRequests: [] 
-
+       const registrationData = {     
+          fullName: form.fullname,
+          email: form.email,
+          phoneNumber: form.phone,
+          address: form.address,
+          password: form.password
       };
+      
 
 
 if (!validateEmail(form.email)) {
@@ -85,12 +86,8 @@ if (!validateEmail(form.email)) {
     return;
   }
 
-      const response = await axios.post(
-        `https://localhost:7230/api/Clients/register?password=${encodeURIComponent(form.password)}`,
-        {
-          ...ClientData,
-        }
-      );
+  await api.post("/Clients/register", registrationData);
+
 
     setError(""); 
 
@@ -98,7 +95,9 @@ if (!validateEmail(form.email)) {
      toast({
            title: "הרשמה הצליחה",
            description: "הרשמתך נקלטה בהצלחה!",
-           variant: "default", // ירוק/ברירת מחדל
+           variant: "default", 
+            duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
+
          });
 
           setTimeout(() => {
@@ -110,6 +109,8 @@ if (!validateEmail(form.email)) {
       title: "שגיאה ברישום",
       description: error.response?.data || "בדקי שהשרת דלוק",
       variant: "destructive",
+      duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
+
     });    
   } finally {
       setIsSubmitting(false);

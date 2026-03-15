@@ -9,6 +9,7 @@ import {
 import { validateEmail, validatePassword, validatePhone } from "@/lib/Validation";
 import { toast } from "@/components/ui/use-toast";
 import { InputField } from "@/components/ui/InputField";
+import api from "../api";
 
 const SPECIALTY_OPTIONS = [
   "אינסטלטור",
@@ -33,6 +34,20 @@ interface RegistrationForm {
   specialty: string;
   basehourprice: string;
   address: string;
+}
+
+export interface Professional {
+    id: number;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    specialty: string;      // תחום התמחות (חשמל, אינסטלציה וכו')
+    averageRating: number;
+    totalReviews: number;
+    baseHourlyRate: number; // מחיר לשעה
+    callOutFee: number;     // מחיר הגעה
+    password: string;       // שים לב: בדרך כלל ב-Client Side נשתמש בשדה זה רק בזמן הרשמה
 }
 
 export default function Registration() {
@@ -102,25 +117,22 @@ export default function Registration() {
     setIsSubmitting(true);
      
     try {
-      const professionalData = {
-        fullName: form.fullname,
-        email: form.email,
-        phoneNumber: form.phone,
-        specialty: form.specialty,
-        baseHourlyRate: Number(form.basehourprice),
-        callOutFee: 150, 
-        address: form.address,
-        averageRating: 0,
-        totalReviews: 0
-      };
+      const requestData = {
+      id: 0, 
+      fullName: form.fullname,
+      email: form.email,
+      PhoneNumber: form.phone.replace(/\D/g, ""), 
+      address: form.address,
+      specialty: form.specialty,
+      baseHourlyRate: Number(form.basehourprice),
+      averageRating: 0,
+      totalReviews: 0,
+      callOutFee: 500,
+      password: form.password 
+    };
+       
+     await api.post('/Professionals/register', requestData);
 
-      await axios.post(
-        "https://localhost:7230/api/Professionals/register",
-        {
-          ...professionalData,
-          password: form.password
-        }
-      );
 
     setError(""); // מאפס שגיאה אם הכל בסדר
 
@@ -131,17 +143,22 @@ export default function Registration() {
       variant: "default", // ירוק/ברירת מחדל
     });
 
-    setTimeout(() => {
-        window.location.href = "/Home"; // הפניה לדף הבית
-      }, 1500);
-
     
+    setTimeout(() => {
+        window.location.href = "/logIn"; // הפניה לדף הבית
+      }, 5000);
 
-    } catch (error: any) {
+  
+    } 
+    catch (error: any) {
+        console.log(error.response.data);
+
      toast({
       title: "שגיאה ברישום",
-      description: error.response?.data || "בדקי שהשרת דלוק",
+      description: error.response?.data,
       variant: "destructive",
+     duration: 3000, // ההודעה תיעלם אוטומטית אחרי 3 שניות
+
     });
       } finally {
       setIsSubmitting(false);
@@ -213,13 +230,13 @@ export default function Registration() {
           placeholder="050-0000000"
         />
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-stone-600">
+         <div className="space-y-2 text-right" dir="rtl">
+            <label className="block text-sm font-medium text-stone-600">
             תחום התמחות
           </label>
 
           <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-right">
               <Briefcase className="w-5 h-5" />
             </div>
 
@@ -229,7 +246,7 @@ export default function Registration() {
               onChange={handleChange}
               className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:border-emerald-500 outline-none transition-all appearance-none text-stone-700"
             >
-              <option value="">בחר תחום...</option>
+              <option value="" >בחר תחום...</option>
               {SPECIALTY_OPTIONS.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -251,7 +268,7 @@ export default function Registration() {
         {error && (
         <div className="text-red-500 text-sm bg-red-50 p-2 rounded border border-red-200 mt-2">
           <pre className="whitespace-pre-wrap break-all">
-            {JSON.stringify(error, null, 2)}
+           {typeof error === 'string' ? error : JSON.stringify(error, null, 2)}
           </pre>
         </div>
       )}

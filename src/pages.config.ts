@@ -50,18 +50,19 @@
 import ForgotPassword from './pages/ForgotPassword.tsx';
 import RegisterRole from './pages/RegisterRole.tsx';
 import ClientRegister from './pages/Registration/ClientRegister.tsx';
-import Home from './pages/Home';
-import Services from './pages/Services';
-import BookService from './pages/BookService';
-import TrackService from './pages/TrackService';
-import Profile from './pages/Profile';
-import HowItWorks from './pages/HowItWorks';
+import Home from './pages/Home.tsx';
+import Services from './pages/Services.tsx';
+import BookService from './pages/BookService.tsx';
+import TrackService from './pages/TrackService.tsx';
+import Profile from './pages/Profile.tsx';
+import HowItWorks from './pages/HowItWorks.tsx';
 import __Layout from './Layout.tsx';
 import Registration from './pages/Registration/ProRegister.tsx';
 import  LogIn   from './pages/LogIn/LogIn.tsx';
 import ReviewForm from './pages/ReviewForm.tsx';
 import FullScreenChat from './pages/FullScreenChat.tsx'
 import payment from './pages/payment.tsx';
+import ProDashboard from './pages/ProDashBoard.tsx';
 export const PAGES = {
    
     "Home": Home,
@@ -77,12 +78,13 @@ export const PAGES = {
     "ClientRegister": ClientRegister,
     "ReviewForm":ReviewForm,
     "FullScreenChat":FullScreenChat,
-    "payment":payment
+    "payment":payment,
+    "ProDashboard":ProDashboard
 };
 
 
 export const pagesConfig = {
-    mainPage: "RegisterRole",
+    mainPage: "Home",
     Pages: PAGES,
     Layout: __Layout,
 };
