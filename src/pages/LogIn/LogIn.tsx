@@ -1,8 +1,9 @@
+
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import api from "../api"; // ודאי שהנתיב לתיקיית ה-api נכון
-import { Mail, Lock, Eye, EyeOff, LucideIcon } from "lucide-react";
+import axios from "axios";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, LucideIcon, User, Briefcase } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom"; // ייבוא תקין של הניווט
 
 interface InputFieldProps {
   icon: LucideIcon;
@@ -19,102 +20,106 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({ 
   icon: Icon, label, type = "text", placeholder, value, onChange, name, showToggle, onToggle, isVisible 
-}) => (
-  <div className="space-y-2">
-    <label className="block text-sm font-medium text-stone-600 text-right">{label}</label>
-    <div className="relative">
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
-        <Icon size={18} />
+}) => {
+  const [focused, setFocused] = useState<boolean>(false);
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+      <label className="block text-sm font-medium text-stone-600">{label}</label>
+      <div className="relative">
+        <div className={`absolute left-4 top-1/2 -translate-y-1/2 ${focused ? "text-emerald-500" : "text-stone-400"}`}>
+          <Icon size={18} />
+        </div>
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder}
+          className="w-full pl-12 pr-12 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl outline-none focus:border-emerald-500 focus:bg-white transition-all"
+        />
+        {showToggle && (
+          <button type="button" onClick={onToggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
+            {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        )}
       </div>
-      <input
-        type={type}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        dir="rtl"
-        className="w-full pl-12 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-right"
-      />
-      {showToggle && (
-        <button type="button" onClick={onToggle} className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
-          {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-        </button>
-      )}
-    </div>
-  </div>
-);
+    </motion.div>
+  );
+};
 
 export default function LogIn() {
-  const navigate = useNavigate();
-  const [isPro, setIsPro] = useState(true);
+  const navigate = useNavigate(); // שימוש ב-Hook של React Router
+  const location = useLocation(); // חילוץ המיקום הנוכחי
+  const from = location.state?.from || "/Home";
+  const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [isPro, setIsPro] = useState(true);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const controller = isPro ? "Professionals" : "Clients";
+    const url = `https://localhost:7230/api/${controller}/login?email=${form.email}&password=${form.password}`;
 
     try {
-      const endpoint = isPro ? "/Professionals/login" : "/Clients/login";
+      const response = await axios.post(url);
+      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("userType", isPro ? "pro" : "client");
       
-      const response = await api.post(endpoint, {
-        email: form.email,
-        password: form.password
-      });
-
-      const { token, role } = response.data;
-      localStorage.setItem("userToken", token);
-      localStorage.setItem("userRole", role);
-
-      alert("התחברת בהצלחה!");
+      alert(`שלום, ${response.data.fullName || "משתמש"}!`);
       
-      if (role === "Professional" || isPro) {
-        navigate("/pro-dashboard");
-      } else {
-        navigate("/client-home");
-      }
+      // הניווט שחיכית לו:
+      navigate(from); 
 
+      //navigate("/Home"); 
+      
     } catch (error: any) {
-      console.error(error);
-      alert("שגיאה בהתחברות: " + (error.response?.data || "בדקי אימייל וסיסמה"));
+      alert("התחברות נכשלה: בדקי את המייל והסיסמה");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6 text-right" dir="rtl">
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl">
-        <h2 className="text-3xl font-bold text-stone-800 mb-8 text-center">התחברות</h2>
-        
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-stone-100">
+        <h2 className="text-3xl font-bold text-stone-800 text-center mb-8">התחברות</h2>
+
         <div className="flex bg-stone-100 p-1 rounded-2xl mb-8">
-          <button onClick={() => setIsPro(true)} className={`flex-1 py-3 rounded-xl font-bold transition-all ${isPro ? 'bg-white shadow text-emerald-600' : 'text-stone-500'}`}>
-            בעל מקצוע
+          <button type="button" onClick={() => setIsPro(true)} className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 ${isPro ? 'bg-white shadow-md text-emerald-600' : 'text-stone-500'}`}>
+            <Briefcase size={16} /> בעל מקצוע
           </button>
-          <button onClick={() => setIsPro(false)} className={`flex-1 py-3 rounded-xl font-bold transition-all ${!isPro ? 'bg-white shadow text-amber-600' : 'text-stone-500'}`}>
-            לקוח
+          <button type="button" onClick={() => setIsPro(false)} className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 ${!isPro ? 'bg-white shadow-md text-amber-600' : 'text-stone-500'}`}>
+            <User size={16} /> לקוח
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <InputField icon={Mail} label="אימייל" name="email" value={form.email} onChange={handleChange} placeholder="your@email.com" />
-          <InputField 
-            icon={Lock} label="סיסמה" name="password" 
-            type={showPassword ? "text" : "password"} 
-            value={form.password} onChange={handleChange}
-            showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword}
-          />
-          
-          <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-stone-800 text-white rounded-2xl font-bold hover:bg-black transition-all disabled:opacity-50">
-            {isSubmitting ? "מתחבר..." : "כניסה למערכת"}
+          <InputField icon={Mail} label="אימייל" name="email" value={form.email} onChange={handleChange} placeholder="name@example.com" />
+          <InputField icon={Lock} label="סיסמה" name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={handleChange} showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword} />
+
+          <div className="text-left">
+            <button 
+              type="button"
+              onClick={() => navigate("/ForgotPassword")} // ניווט בטוח
+              className="text-sm text-emerald-600 hover:underline cursor-pointer font-medium bg-transparent border-none p-0"
+            >
+              שכחת סיסמה?
+            </button>
+          </div>
+
+          <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 flex items-center justify-center gap-2 transition-all">
+            {isSubmitting ? "...מתחבר" : "כניסה למערכת"} <ArrowRight size={18} />
           </button>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 }

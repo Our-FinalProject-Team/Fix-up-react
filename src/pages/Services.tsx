@@ -1,5 +1,5 @@
-import React, { JSX, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { JSX, useState ,useEffect} from 'react';
+import { Link ,useLocation} from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -86,11 +86,24 @@ const services: Service[] = [
 ];
 
 export default function Services(): JSX.Element {
+  const location = useLocation();
+
+  
   const urlParams = new URLSearchParams(window.location.search);
   const initialCategory: string = urlParams.get('category') || 'all';
   
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryFromUrl = urlParams.get('category');
+    
+    if (categoryFromUrl) {
+      setSelectedCategory(categoryFromUrl);
+    } else {
+      setSelectedCategory('all');
+    }
+  }, [location.search]);
 
   const filteredServices = services.filter(service => {
     const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
