@@ -65,7 +65,7 @@ const App: React.FC = () => {
         </Router>
         <Toaster />
       </QueryClientProvider>
-    
+   
   );
 };
 

@@ -24,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
 
 const navItems = [   
     { name: 'שירותים', icon: Search, page: 'Services' },
-    { name: 'מסלול', icon: MapPin, page: 'TrackService' },
+    //{ name: 'מסלול', icon: MapPin, page: 'TrackService' },
     { name: 'פרופיל', icon: User, page: 'Profile' },   
     { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
      { name: 'איך זה עובד', icon: User, page: 'HowItWorks' }, 
@@ -194,12 +194,32 @@ const navItems = [
               </div>
               
               <div>
-                <h4 className="font-semibold mb-4">שירותים</h4>
+                <h4 className="font-semibold mb-4">שירותים</h4>                
                 <ul className="space-y-2 text-sm text-gray-400">
-                  <li><a href="#" className="hover:text-white transition-colors">אינסטלציה</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">חשמל</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">מערכות למיזוג אויר</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">צביעה</a></li>
+                <li>
+                  <Link to={`${createPageUrl('Services')}?category=אינסטלציה`} className="hover:text-white transition-colors">
+                  אינסטלציה
+                  </Link>
+                </li>  
+                <li>
+                <Link 
+    to={`${createPageUrl('Services')}?category=חשמל`} 
+    className="hover:text-white transition-colors"
+  >
+    חשמל
+  </Link>
+                </li>  
+                <li>
+                  <Link to={`${createPageUrl('Services')}?category=מערכות למיזוג אויר`} className="hover:text-white transition-colors">
+                  מערכות למיזוג אויר
+                  </Link>
+                </li>  
+                <li>
+                  <Link to={`${createPageUrl('Services')}?category=צביעה`} className="hover:text-white transition-colors">
+                  צביעה
+                  </Link>
+                </li>  
+
                 </ul>
               </div>
               

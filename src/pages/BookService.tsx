@@ -95,7 +95,7 @@ export default function BookService() {
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [address, setAddress] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
-
+  const[name,setName]=useState<string>(''); 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -198,7 +198,9 @@ export default function BookService() {
             </Card>
 
             <Button
-              onClick={() => setStep(2)}
+            onClick={() => navigate(createPageUrl('Login'))}
+              //onClick={()=>createPageUrl('Login')}
+              //onClick={() => setStep(2)}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
             >
               המשך לתשלום
@@ -284,8 +286,8 @@ export default function BookService() {
                    <Input
                     id="name"
                     placeholder="הקלד שם מלא"
-                    value={address}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
+                    value={name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                     className="py-6 rounded-xl border-gray-200"
                   />
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
@@ -320,7 +322,8 @@ export default function BookService() {
                 חזרה
               </Button>
               <Button
-               onClick={()=>createPageUrl('payment')}
+              onClick={() => navigate(createPageUrl('Payment'))}
+              //onClick={()=>createPageUrl('Payment')}
                 disabled={!selectedTime || !address}
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
               >
