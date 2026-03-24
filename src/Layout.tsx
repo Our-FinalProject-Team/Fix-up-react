@@ -197,9 +197,10 @@ const navItems = [
                 <h4 className="font-semibold mb-4">שירותים</h4>                
                 <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link to={`${createPageUrl('Services')}?category=אינסטלציה`} className="hover:text-white transition-colors">
+                  <Link to={`${createPageUrl('Services')}?category=אינסטלציה`} className="hover:text-white transition-colors" onClick={() => window.scrollTo(0, 0)}>
                   אינסטלציה
                   </Link>
+                  
                 </li>  
                 <li>
                 <Link 

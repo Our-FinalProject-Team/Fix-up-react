@@ -381,8 +381,8 @@ export default function Payment() {
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-emerald-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
-          <p className="text-gray-500">Your booking has been confirmed.</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">!העסקה אושרה</h2>
+          <p className="text-gray-500">.עסקתך אושרה בהצלחה ונשלחה לכתובת המייל שלך</p>
         </motion.div>
       </div>
     );
@@ -401,7 +401,7 @@ export default function Payment() {
 
         {/* Title */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">איך תרצה לשלם?</h1>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">?איך תרצה לשלם</h1>
           <p className="text-gray-400 mt-2 text-sm">השלם את ההזמנה שלך בצורה בטוחה</p>
         </motion.div>
 
@@ -458,7 +458,7 @@ export default function Payment() {
           {/* Inputs Section */}
           <div className="space-y-4">
             <div className="group">
-              <label className="text-[11px] font-bold text-gray-400 uppercase mr-1 mb-2 block tracking-wider italic">Card Number</label>
+              <label className="text-[11px] font-bold text-gray-400 uppercase mr-1 mb-2 block tracking-wider italic">מספר כרטיס</label>
               <input
                 className="w-full bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
                 value={form.cardNumber}
@@ -469,7 +469,7 @@ export default function Payment() {
 
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="text-[11px] font-bold text-gray-400 uppercase mr-1 mb-2 block tracking-wider italic">Expiry</label>
+                    <label className="text-[11px] font-bold text-gray-400 uppercase mr-1 mb-2 block tracking-wider italic">תוקף</label>
                     <input
                         className="w-full bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
                         value={form.expiry}
@@ -498,7 +498,7 @@ export default function Payment() {
             <div className="flex gap-2 mb-2">
               <input
                 className="flex-1 bg-gray-50/50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                placeholder="Email Address"
+                placeholder="כתובת מייל"
                 value={form.email}
                 onChange={(e) => set('email', e.target.value)}
               />
@@ -506,14 +506,14 @@ export default function Payment() {
                 onClick={() => setCodeSent(true)}
                 className="px-5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold rounded-xl transition-all"
               >
-                {codeSent ? 'Resend' : 'Send'}
+                {codeSent ? 'שלח שוב' : 'שלח'}
               </button>
             </div>
             {codeSent && (
                <motion.input 
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="w-full bg-emerald-50/30 border border-emerald-100 rounded-xl px-4 py-3 text-sm mt-2 outline-none"
-                  placeholder="Verification Code"
+                  placeholder="קוד אימות"
                   value={form.emailCode}
                   onChange={(e) => set('emailCode', e.target.value.slice(0, 6))}
                />
@@ -536,7 +536,7 @@ export default function Payment() {
           </button>
 
           <p className="text-center text-[11px] text-gray-300">
-             Your data is encrypted by 256-bit SSL security
+             SSL הנתונים שלך מוצפנים היטב בעזרת אבטחת 
           </p>
         </motion.div>
       </div>

@@ -74,7 +74,6 @@ export default function LogIn() {
       localStorage.setItem("userType", isPro ? "pro" : "client");
       
       alert(`שלום, ${response.data.fullName || "משתמש"}!`);
-      
       // הניווט שחיכית לו:
       navigate(from); 
 
@@ -118,6 +117,7 @@ export default function LogIn() {
           <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 flex items-center justify-center gap-2 transition-all">
             {isSubmitting ? "...מתחבר" : "כניסה למערכת"} <ArrowRight size={18} />
           </button>
+          <button></button>
         </form>
       </div>
     </div>

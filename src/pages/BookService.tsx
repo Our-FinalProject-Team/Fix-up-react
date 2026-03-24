@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
   ArrowLeft, 
   Star, 
@@ -19,7 +20,6 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
-import { useNavigate } from 'react-router-dom';
 
 interface Service {
   id: number;
@@ -90,7 +90,13 @@ const dates: DateOption[] = Array.from({ length: 7 }, (_, i) => {
 
 export default function BookService() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<number>(1);
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const initialStep = Number(queryParams.get('step')) || 1;
+  const [step, setStep] = useState<number>(initialStep);
+
+  //const [step, setStep] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState<DateOption>(dates[0]);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [address, setAddress] = useState<string>('');
@@ -198,7 +204,13 @@ export default function BookService() {
             </Card>
 
             <Button
-            onClick={() => navigate(createPageUrl('Login'))}
+            onClick={() => {if (localStorage.getItem("user")) {
+              setStep(2);
+            } else {navigate(createPageUrl('Login'), { 
+              state: { from: location.pathname + "?step=2" } 
+            });}}}
+  
+           /////////////// onClick={() => navigate(createPageUrl('Login'),{state:{from: location.pathname }})}
               //onClick={()=>createPageUrl('Login')}
               //onClick={() => setStep(2)}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
