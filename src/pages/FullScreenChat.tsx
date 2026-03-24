@@ -6,9 +6,7 @@ import ChatHeader from "../components/chat/chatHeader";
 import ChatInput from "../components/chat/ChatInput";
 import MessageBubble from "../components/chat/MessageBubble";
 
-// --- פונקציות עזר מוגנות (מחוץ לקומפוננטה) ---
 const getAvatarColor2 = (name: any): string => {
-  // הגנה קריטית: אם השם לא קיים או לא מחרוזת, מחזירים צבע ברירת מחדל ולא קורסים
   if (!name || typeof name !== 'string') return "bg-gray-400";
   
   const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-pink-500", "bg-indigo-500", "bg-teal-500"];

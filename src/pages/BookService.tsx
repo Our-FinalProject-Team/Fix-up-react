@@ -21,6 +21,8 @@ import { Textarea } from '../components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { useNavigate } from 'react-router-dom';
 
+import ServiceReviewsPreview from '../components/reviews/ServiceReviewsPreview';
+
 interface Service {
   id: number;
   name: string;
@@ -177,6 +179,13 @@ export default function BookService() {
                     ))}
                   </ul>
                 </div>
+              {/* Reviews Section */}
+              <div className="mt-8">
+                <ServiceReviewsPreview
+                  professionalName={service.name}
+                  serviceName={service.category}
+                />
+              </div>
               </div>
             </Card>
 

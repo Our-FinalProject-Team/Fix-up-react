@@ -6,11 +6,13 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, LucideIcon, User, Briefcase } from
 import { InputField } from "@/components/ui/InputField";
 import { toast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom"; // ייבוא תקין של הניווט
+import { useAuth } from "../Contexts/AuthContext";
 
 
 export default function LogIn() {
   const navigate = useNavigate(); // שימוש ב-Hook של React Router
   const location = useLocation(); // חילוץ המיקום הנוכחי
+  const { login } = useAuth();
   const from = location.state?.from || "/Home";
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -35,8 +37,17 @@ export default function LogIn() {
       });
 
       const { token, role } = response.data;
+      if(!token || !role)
+       {
+        toast({
+          title: "התחבר שוב",
+          description: "הטוקן ריק",
+          variant: "destructive",        
+        });
+       }
       localStorage.setItem("userToken", token);
       localStorage.setItem("userRole", role);
+      login(token)
 
        toast({
                  title: "נכנסת בהצלחה",

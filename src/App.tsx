@@ -8,6 +8,7 @@ import PageNotFound from "./lib/PageNotFound";
 //import { AuthProvider, useAuth } from "@/lib/AuthContext";
 //import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import React, { ReactNode } from "react";
+import { AuthProvider } from "./pages/Contexts/AuthContext";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? (Object.keys(Pages)[0] as string);
@@ -59,11 +60,13 @@ const App: React.FC = () => {
   return (
     
       <QueryClientProvider client={queryClientInstance}>
+        <AuthProvider>
         <Router>
           <NavigationTracker />
           <AuthenticatedApp />
         </Router>
         <Toaster />
+        </AuthProvider>
       </QueryClientProvider>
    
   );

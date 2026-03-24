@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from "@/pages/Contexts/AuthContext";
 
 // Define props type
 interface LayoutProps {
@@ -21,6 +22,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoggedIn, logout } = useAuth();
 
 const navItems = [   
     { name: 'שירותים', icon: Search, page: 'Services' },
@@ -74,14 +76,25 @@ const navItems = [
                   איך זה עובד 
                 </Link> */}
               </nav>
-
-              {/* CTA Button */}
-              <div className="hidden md:flex items-center gap-3">
-                <Link to={createPageUrl('LogIn')}>
-                  <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6">
-                  התחברות
-                  </Button>
-                </Link>
+              
+              {/* Desktop Auth Button */}
+               <div className="hidden md:flex items-center gap-3">
+                  {isLoggedIn ? (
+                    // כפתור התנתקות - עיצוב שונה (למשל: רק מסגרת או צבע אדום עדין)
+                    <Button 
+                      className="border-2 border-gray-300 bg-transparent hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-xl px-6 transition-colors" 
+                      onClick={logout}
+                    >
+                      התנתקות
+                    </Button>
+                  ) : (
+                    // כפתור התחברות - העיצוב המקורי והבולט שלך
+                    <Link to={createPageUrl('LogIn')}>
+                      <Button className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6 shadow-md">
+                        התחברות
+                      </Button>
+                    </Link>
+                  )}
               </div>
 
               {/* Mobile Menu Button */}
@@ -203,11 +216,11 @@ const navItems = [
                 </li>  
                 <li>
                 <Link 
-    to={`${createPageUrl('Services')}?category=חשמל`} 
-    className="hover:text-white transition-colors"
-  >
-    חשמל
-  </Link>
+                  to={`${createPageUrl('Services')}?category=חשמל`} 
+                  className="hover:text-white transition-colors"
+                >
+                  חשמל
+                </Link>
                 </li>  
                 <li>
                   <Link to={`${createPageUrl('Services')}?category=מערכות למיזוג אויר`} className="hover:text-white transition-colors">
