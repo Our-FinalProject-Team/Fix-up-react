@@ -7,32 +7,47 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
-  // 1. בודקים איזה שדה מגיע מהשרת (בדרך כלל באותיות קטנות ב-JSON)
-  // נסי createdAt או createdDate בהתאם למה שמופיע ב-Network tab
-  const dateValue = new Date(message.createdAt || message.created_date || Date.now());
+  // 1. הזמן מגיע כבר מוכן כטקסט מהקומפוננטה האבא (Chat.tsx)
+  const displayTime = message.createdAt || "--:--";
 
-  // 2. מוודאים שהתאריך תקין לפני העיצוב
-  const formattedTime = isValid(dateValue) ? format(dateValue, "HH:mm") : "--:--";
+  // 2. חילוץ ה-URL של התמונה (תומך בשני הפורמטים: imageUrl או image_url)
+  const imgPath = message.imageUrl || message.image_url;
 
   return (
-    <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2`}>
-      <div className={`max-w-[70%] p-3 rounded-2xl ${isOwn ? "bg-blue-600 text-white" : "bg-white text-zinc-800 shadow-sm"}`}>
+    <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 w-full px-2`}>
+      <div className={`
+        relative p-3 rounded-2xl shadow-sm
+        min-w-[120px] 
+        max-w-[85%] 
+        ${isOwn 
+          ? "bg-blue-600 text-white rounded-tr-none ml-auto" 
+          : "bg-white text-zinc-800 shadow-sm rounded-tl-none mr-auto"}
+      `}>
         
-        {/* שימי לב שגם כאן השם בשרת הוא כנראה imageUrl (בלי קו תחתון) */}
-        {(message.imageUrl || message.image_url) && (
-          <img 
-            src={message.imageUrl || message.image_url} 
-            alt="Attachment" 
-            className="rounded-lg mb-2 max-h-60 w-full object-cover cursor-pointer hover:opacity-90 transition"
-            onClick={() => window.open(message.imageUrl || message.image_url, '_blank')}
-          />
+        {/* הצגת תמונה - הוספת localhost:7230 חובה כאן */}
+        {imgPath && (
+          <div className="mb-2 rounded-lg overflow-hidden border border-black/5 bg-zinc-100">
+            <img 
+              src={`https://localhost:7230${imgPath}`} 
+              alt="קובץ שצורף" 
+              className="max-h-64 w-full object-cover cursor-pointer hover:opacity-90 transition"
+              // מוודא שהתמונה תיפתח בחלון חדש עם הכתובת המלאה בלחיצה
+              onClick={() => window.open(`https://localhost:7230${imgPath}`, '_blank')}
+              // אם יש שגיאה בטעינת התמונה, נדפיס אותה כדי שנדע מה הכתובת הבעייתית
+              onError={(e) => console.error("Image failed to load:", e.currentTarget.src)}
+            />
+          </div>
         )}
         
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+        {/* טקסט ההודעה */}
+        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-right">
+          {message.content}
+        </p>
         
-        <span className={`text-[10px] block mt-1 ${isOwn ? "text-blue-100" : "text-zinc-400"}`}>
-          {formattedTime}
-        </span>
+        {/* זמן ההודעה */}
+        <div className={`text-[10px] mt-1 flex ${isOwn ? "justify-start" : "justify-end"} opacity-70`}>
+          <span>{displayTime}</span>
+        </div>
       </div>
     </div>
   );

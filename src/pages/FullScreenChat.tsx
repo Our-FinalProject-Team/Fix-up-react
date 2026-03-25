@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import axios from "axios";
+import api from "./api"
 import { Loader2 } from "lucide-react";
 import ChatHeader from "../components/chat/chatHeader";
 import ChatInput from "../components/chat/ChatInput";
@@ -34,10 +35,16 @@ const formatDateTime = (dateString?: string) => {
   }
 };
 
+
+
+interface Role{
+  role:"Client" | "Technician"
+}
+
 interface User {
   email: string;
-  full_name: string;
-  role: "Client" | "Technician";
+  fullName: string;
+  role: Role;
   categoryId?: number;
   isGuest?: boolean;
 }
@@ -52,102 +59,167 @@ interface Message {
   categoryId: number;
 }
 
+
+
 export default function Chat() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [userRole, setUserRole] = useState<Role | null>(() => {
+  const savedRole = localStorage.getItem("userRole");
+  
+  if (!savedRole) return null;
 
-  // 1. טעינת משתמש
-  useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setCurrentUser({ ...JSON.parse(savedUser), isGuest: false });
-    } else {
+  try {
+    // מנסים לעשות Parse למקרה שזה אובייקט JSON
+    return JSON.parse(savedRole) as Role;
+  } catch (e) {
+    // אם ה-Parse נכשל, כנראה שזו מחרוזת פשוטה (כמו "Client")
+    // במקרה כזה, נחזיר אובייקט במבנה שהגדרת
+    return { role: savedRole as "Client" | "Technician" };
+  }
+});
+
+ useEffect(() => {
+  const fetchUser = async () => {
+    const token = localStorage.getItem("userToken");
+
+    // אם אין טוקן, נגדיר ישר כאורח ונצא
+    if (!token) {
       setCurrentUser({
         email: "guest@example.com",
-        full_name: "אורח",
-        role: "Client",
+        fullName: "אורח",
+        role: { role: "Client" },
+        isGuest: true
+      });
+      return;
+    }
+
+    try {
+      // בחירת הנתיב לפי התפקיד שנמצא ב-State או ב-LocalStorage
+      const endpoint = userRole?.role === "Client" ? "Clients/me" : "Professionals/me";
+      
+      const response = await api.get(endpoint);
+      console.log(response.data);
+      
+      if (response.data) {
+        setCurrentUser({ ...response.data, isGuest: false });
+      }
+    } catch (error) {
+      console.error("שגיאה בטעינת נתוני משתמש:", error);
+      // במקרה של שגיאה (למשל טוקן פג תוקף), נחזיר למצב אורח
+      setCurrentUser({
+        email: "guest@example.com",
+        fullName: "אורח",
+        role: { role: "Client" },
         isGuest: true
       });
     }
-  }, []);
+  };
 
-  // 2. חיבור וטעינת היסטוריה
-  useEffect(() => {
-    if (!currentUser) return;
+  fetchUser();
+}, []); 
 
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7230/chatHub")
-      .withAutomaticReconnect()
-      .build();
+useEffect(() => {
+  if (!currentUser) return;
 
-    newConnection.start()
-      .then(async () => {
-        console.log("Connected to SignalR!");
-        setConnection(newConnection);
-        
-        try {
-          const history = await axios.get("https://localhost:7230/api/messages/history");
-          // ודא שהנתונים שמגיעים הם מערך
-          setMessages(Array.isArray(history.data) ? history.data : []);
-        } catch (err) {
-          console.error("Failed to load history", err);
-        } finally {
-          setIsLoading(false);
-        }
+  const newConnection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:7230/chatHub", {
+      // אם יש לך Authentication, כדאי להוסיף את הטוקן כאן
+      accessTokenFactory: () => localStorage.getItem("userToken") || ""
+    })
+    .withAutomaticReconnect()
+    .build();
 
-        newConnection.on("ReceiveMessage", (message: Message) => {
-          setMessages(prev => [...prev, message]);
-        });
-      })
-      .catch(e => {
-        console.error("Connection failed: ", e);
-        setIsLoading(false);
+  const startConnection = async () => {
+    try {
+      await newConnection.start();
+      console.log("Connected to SignalR!");
+      setConnection(newConnection);
+
+      // טעינת היסטוריה
+      const history = await api.get("Message/history");
+      setMessages(Array.isArray(history.data) ? history.data : []);
+
+      newConnection.on("ReceiveMessage", (message: Message) => {
+        setMessages(prev => [...prev, message]);
       });
+    } catch (err) {
+      console.error("Connection or History failed: ", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return () => { 
-        if(newConnection) newConnection.off("ReceiveMessage"); 
-    };
-  }, [currentUser]);
+  startConnection();
+
+  // פונקציית Cleanup - חשוב מאוד!
+  return () => {
+    if (newConnection) {
+      newConnection.stop(); // סוגר את החיבור כשיוצאים מהדף
+      newConnection.off("ReceiveMessage");
+    }
+  };
+}, [currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = useCallback(async (content: string, file?: File) => {
-      if (!currentUser || currentUser.isGuest) {
-        alert("אורחים אינם מורשים לשלוח הודעות");
-        return;
-      }
+const handleSend = useCallback(async (content: string, file?: File) => {
+  if (!currentUser || currentUser.isGuest) {
+    alert("אורחים אינם מורשים לשלוח הודעות");
+    return;
+  }
 
-      try {
-        let uploadedUrl = "";
-        if (file) {
-          const formData = new FormData();
-          formData.append("file", file);
-          const uploadRes = await axios.post("https://localhost:7230/api/messages/upload", formData);
-          uploadedUrl = uploadRes.data.url;
-        }
+  try {
+    let uploadedUrl = "";
+    
+    // 1. העלאת הקובץ לשרת וקבלת הנתיב שלו
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const uploadRes = await api.post("Message/upload", formData); 
+      // חשוב: לוודא שהשרת מחזיר אובייקט עם שדה בשם url
+      uploadedUrl = uploadRes.data.url; 
+    }
 
-        const messageDto = {
-          content: content,
-          senderName: currentUser.full_name,
-          senderRole: currentUser.role,
-          imageUrl: uploadedUrl || "",
-          categoryId: currentUser.categoryId || 0 
-        };
+    // 2. בניית ה-DTO עם ה-URL המעודכן (כך הוא יישמר ב-DB)
+    const messageDto = {
+      id: 0,
+      content: content,
+      createdAt: new Date().toISOString(),
+      senderId: (currentUser as any).id || 0,
+      senderName: currentUser.fullName,
+      senderRole: currentUser.role?.role || "Client", 
+      imageUrl: uploadedUrl, // כאן נכנס ה-URL שקיבלנו מהשלב הקודם
+      categoryId: Number(currentUser.categoryId) || 0 
+    };
 
-        await axios.post("https://localhost:7230/api/messages/send", messageDto);
-      } catch (error) {
-        console.error("Error in handleSend:", error);
-      }
-    }, [currentUser]);
+    // 3. שליחת ההודעה השלמה לשרת לשמירה ב-Database
+    const response = await api.post("Message/send", messageDto);
+
+    // 4. עדכון ה-UI המקומי כדי לראות את ההודעה מיד
+    // כדאי להשתמש בנתונים שחזרו מהשרת (כמו ה-ID האמיתי)
+    const savedMessage = response.data || messageDto;
+    setMessages(prev => [...prev, savedMessage]);
+
+    // 5. שידור לשאר המשתמשים דרך SignalR
+    if (connection && connection.state === "Connected") {
+      await connection.invoke("SendMessage", savedMessage);
+    }
+
+  } catch (error) {
+    console.error("שגיאה בתהליך השליחה והעלאת התמונה:", error);
+  }
+}, [currentUser, connection]);
 
   const displayMessages = messages.filter(msg => {
     if (!currentUser) return false;
-    if (currentUser.role === "Client") return true;
+    if (userRole?.role === "Client") return true;
     return msg.categoryId === currentUser.categoryId || msg.categoryId === 0;
   });
 
@@ -167,8 +239,7 @@ export default function Chat() {
       <div className="flex-1 overflow-y-auto px-4 py-4" style={{ backgroundColor: "#f0f2f5" }}>
         <div className="max-w-3xl mx-auto space-y-4">
           {displayMessages.map((msg, idx) => {
-            const isOwn = msg.senderName === currentUser.full_name;
-            return (
+            const isOwn = msg.senderName === (currentUser.fullName || currentUser.fullName);            return (
               <div key={idx} className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full ${getAvatarColor2(msg.senderName)} text-white flex items-center justify-center text-[10px] font-bold shadow-sm`}>
                   {getInitials(msg.senderName)}
@@ -207,10 +278,10 @@ export default function Chat() {
           ) : (
             <>
               <div className="flex items-center gap-2 mb-2 px-1">
-                <div className={`w-6 h-6 rounded-full ${getAvatarColor2(currentUser.full_name)} text-white flex items-center justify-center text-[10px] font-bold`}>
-                   {getInitials(currentUser.full_name)}
+                <div className={`w-6 h-6 rounded-full ${getAvatarColor2(currentUser.fullName)} text-white flex items-center justify-center text-[10px] font-bold`}>
+                   {getInitials(currentUser.fullName)}
                 </div>
-                <span className="text-xs text-gray-500 font-bold">כותבת כעת: {currentUser.full_name}</span>
+                <span className="text-xs text-gray-500 font-bold">כותבת כעת: {currentUser.fullName}</span>
               </div>
               <ChatInput onSend={handleSend} disabled={!connection} />
             </>

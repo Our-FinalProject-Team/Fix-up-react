@@ -46,7 +46,7 @@ export default function LogIn() {
         });
        }
       localStorage.setItem("userToken", token);
-      localStorage.setItem("userRole", role);
+      localStorage.setItem("userRole", JSON.stringify({ role: role }));
       login(token)
 
        toast({
