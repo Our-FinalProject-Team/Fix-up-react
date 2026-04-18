@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import  { useState, useEffect, useRef, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
-import axios from "axios";
 import api from "./api"
 import { Loader2 } from "lucide-react";
 import ChatHeader from "../components/chat/chatHeader";
@@ -73,7 +72,6 @@ export default function Chat() {
   if (!savedRole) return null;
 
   try {
-    // מנסים לעשות Parse למקרה שזה אובייקט JSON
     return JSON.parse(savedRole) as Role;
   } catch (e) {
     // אם ה-Parse נכשל, כנראה שזו מחרוזת פשוטה (כמו "Client")
@@ -98,7 +96,6 @@ export default function Chat() {
     }
 
     try {
-      // בחירת הנתיב לפי התפקיד שנמצא ב-State או ב-LocalStorage
       const endpoint = userRole?.role === "Client" ? "Clients/me" : "Professionals/me";
       
       const response = await api.get(endpoint);
@@ -155,7 +152,6 @@ useEffect(() => {
 
   startConnection();
 
-  // פונקציית Cleanup - חשוב מאוד!
   return () => {
     if (newConnection) {
       newConnection.stop(); // סוגר את החיבור כשיוצאים מהדף
@@ -168,52 +164,63 @@ useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-const handleSend = useCallback(async (content: string, file?: File) => {
+
+
+   const handleSend = useCallback(async (content: string, file?: File) => {
   if (!currentUser || currentUser.isGuest) {
     alert("אורחים אינם מורשים לשלוח הודעות");
     return;
   }
 
+  if (!file && (!content || content.trim() === "")) {
+    console.warn("ניסיון שליחת הודעה ריקה נחסם");
+    return; 
+  }
+
   try {
     let uploadedUrl = "";
     
-    // 1. העלאת הקובץ לשרת וקבלת הנתיב שלו
+    // 1. העלאת קובץ
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
-      
       const uploadRes = await api.post("Message/upload", formData); 
-      // חשוב: לוודא שהשרת מחזיר אובייקט עם שדה בשם url
       uploadedUrl = uploadRes.data.url; 
     }
 
-    // 2. בניית ה-DTO עם ה-URL המעודכן (כך הוא יישמר ב-DB)
+    // 2. בניית ה-DTO
     const messageDto = {
       id: 0,
-      content: content,
+      content: content || "",
       createdAt: new Date().toISOString(),
       senderId: (currentUser as any).id || 0,
       senderName: currentUser.fullName,
       senderRole: currentUser.role?.role || "Client", 
-      imageUrl: uploadedUrl, // כאן נכנס ה-URL שקיבלנו מהשלב הקודם
+      imageUrl: uploadedUrl,
       categoryId: Number(currentUser.categoryId) || 0 
     };
 
-    // 3. שליחת ההודעה השלמה לשרת לשמירה ב-Database
+    // 3. שליחה ל-API
     const response = await api.post("Message/send", messageDto);
 
-    // 4. עדכון ה-UI המקומי כדי לראות את ההודעה מיד
-    // כדאי להשתמש בנתונים שחזרו מהשרת (כמו ה-ID האמיתי)
-    const savedMessage = response.data || messageDto;
-    setMessages(prev => [...prev, savedMessage]);
+    // 4. הכנת האובייקט לתצוגה (מוודא שלא יהיה undefined)
+    // אם השרת החזיר נתונים, נשתמש בהם. אם לא, ב-DTO שלנו.
+    const messageToDisplay = response.data || messageDto;
+    if (!messageToDisplay.id) messageToDisplay.id = Math.random();
 
-    // 5. שידור לשאר המשתמשים דרך SignalR
+    
+
+    // 6. SignalR - בדרך כלל השרת (Controller) כבר משדר לכולם, 
+    // אבל אם את בכל זאת עושה invoke, עטפי אותו ב-try catch בלי לחכות (await)
     if (connection && connection.state === "Connected") {
-      await connection.invoke("SendMessage", savedMessage);
+        connection.invoke("SendMessage", messageToDisplay).catch(err => 
+            console.error("SignalR Invoke Error:", err)
+        );
     }
 
   } catch (error) {
-    console.error("שגיאה בתהליך השליחה והעלאת התמונה:", error);
+    console.error("שגיאה בתהליך השליחה:", error);
+    alert("חלה שגיאה בשליחת ההודעה");
   }
 }, [currentUser, connection]);
 
