@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import  { useState, useEffect, useRef, useCallback } from "react";
 import * as signalR from "@microsoft/signalr";
 import api from "./api"
@@ -5,39 +6,17 @@ import { Loader2 } from "lucide-react";
 import ChatHeader from "../components/chat/chatHeader";
 import ChatInput from "../components/chat/ChatInput";
 import MessageBubble from "../components/chat/MessageBubble";
+//import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getAvatarColor2, getInitials, formatDateTime } from "../utils/chatUtils";
+import {useChatSound} from '../hooks/useChatSound';
+import { useSearchParams,useNavigate } from "react-router-dom";
 
-const getAvatarColor2 = (name: any): string => {
-  if (!name || typeof name !== 'string') return "bg-gray-400";
-  
-  const colors = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500", "bg-pink-500", "bg-indigo-500", "bg-teal-500"];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-};
 
-const getInitials = (name: any): string => {
-  if (!name || typeof name !== 'string') return "U";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  return name[0] ? name[0].toUpperCase() : "U";
-};
-
-const formatDateTime = (dateString?: string) => {
-  if (!dateString) return "";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString("he-IL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-  } catch (e) {
-    return "";
-  }
-};
 
 
 
 interface Role{
-  role:"Client" | "Technician"
+  role:"Client" | "Professional"
 }
 
 interface User {
@@ -46,10 +25,12 @@ interface User {
   role: Role;
   categoryId?: number;
   isGuest?: boolean;
+  id?: number;
 }
 
 interface Message {
   id?: string;
+ conversationId?: string;
   content: string;
   senderName: string;
   senderRole: string;
@@ -62,10 +43,24 @@ interface Message {
 
 export default function Chat() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "system-0",
+      conversationId: "",
+      content: "👏 Fix-Up ברוכים הבאים לאפליקציית\n" + 
+             "כדי שנוכל לתת לכם מענה מהיר ומדויק, נשמח אם תתארו בקצרה את מהות התקלה\n" +
+             "טיפ: צרוף תמונה 📸 יעזור לנו לתת לכם חווית שירות טובה יותר",
+      senderName: "מערכת אוטומטית",
+      senderRole: "System",
+      createdAt: new Date().toISOString(),
+      categoryId: 0
+    }
+  ]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(() => {
   const savedRole = localStorage.getItem("userRole");
   
@@ -76,9 +71,20 @@ export default function Chat() {
   } catch (e) {
     // אם ה-Parse נכשל, כנראה שזו מחרוזת פשוטה (כמו "Client")
     // במקרה כזה, נחזיר אובייקט במבנה שהגדרת
-    return { role: savedRole as "Client" | "Technician" };
+    return { role: savedRole as "Client" | "Professional" };
   }
 });
+const conversationId = searchParams.get("id");
+const playNotification = useChatSound();
+
+useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.senderName !== currentUser?.fullName) {
+        playNotification();
+      }
+    }
+  }, [messages, currentUser?.fullName, playNotification]);
 
  useEffect(() => {
   const fetchUser = async () => {
@@ -90,7 +96,8 @@ export default function Chat() {
         email: "guest@example.com",
         fullName: "אורח",
         role: { role: "Client" },
-        isGuest: true
+        isGuest: true,
+        id:0
       });
       return;
     }
@@ -111,7 +118,8 @@ export default function Chat() {
         email: "guest@example.com",
         fullName: "אורח",
         role: { role: "Client" },
-        isGuest: true
+        isGuest: true,
+        id:0
       });
     }
   };
@@ -119,12 +127,20 @@ export default function Chat() {
   fetchUser();
 }, []); 
 
+
 useEffect(() => {
   if (!currentUser) return;
 
+  // 1. טיפול ב-ID של השיחה קודם כל
+  if (!conversationId) {
+    const newGuid = crypto.randomUUID();
+    setSearchParams({ id: newGuid });
+    return; // עוצרים כאן, ה-Effect ירוץ שוב עם ה-ID החדש
+  }
+
+  // 2. בניית חיבור SignalR
   const newConnection = new signalR.HubConnectionBuilder()
     .withUrl("https://localhost:7230/chatHub", {
-      // אם יש לך Authentication, כדאי להוסיף את הטוקן כאן
       accessTokenFactory: () => localStorage.getItem("userToken") || ""
     })
     .withAutomaticReconnect()
@@ -132,17 +148,26 @@ useEffect(() => {
 
   const startConnection = async () => {
     try {
-      await newConnection.start();
+      // טעינת היסטוריה במקביל לחיבור (חוסך זמן)
+      const historyPromise = api.get(`Message/history/${conversationId}`);
+      const connectionPromise = newConnection.start();
+
+      const [historyResponse] = await Promise.all([historyPromise, connectionPromise]);
+      
       console.log("Connected to SignalR!");
       setConnection(newConnection);
+      
+      // עדכון הודעות - אם אין היסטוריה, נשארים עם מערך ריק
+      setMessages(Array.isArray(historyResponse.data) ? historyResponse.data : []);
 
-      // טעינת היסטוריה
-      const history = await api.get("Message/history");
-      setMessages(Array.isArray(history.data) ? history.data : []);
-
+      // האזנה להודעות חדשות
       newConnection.on("ReceiveMessage", (message: Message) => {
-        setMessages(prev => [...prev, message]);
+        // חשוב: לוודא שההודעה שייכת לשיחה הנוכחית
+        if (message.conversationId === conversationId) {
+          setMessages(prev => [...prev, message]);
+        }
       });
+
     } catch (err) {
       console.error("Connection or History failed: ", err);
     } finally {
@@ -152,77 +177,83 @@ useEffect(() => {
 
   startConnection();
 
+  // 3. Cleanup - ניקוי החיבור
   return () => {
     if (newConnection) {
-      newConnection.stop(); // סוגר את החיבור כשיוצאים מהדף
       newConnection.off("ReceiveMessage");
+      newConnection.stop();
     }
   };
-}, [currentUser]);
+}, [currentUser, conversationId, setSearchParams]); // התלויות הנדרשות
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleInteraction = () => {
+  if (!hasUnlockedAudio) {
+    // מפעילים פעם אחת בלבד כדי "לאשר" לדפדפן, ואז מפסיקים
+    playNotification(); 
+    setHasUnlockedAudio(true);
+  }
+};
 
-
-   const handleSend = useCallback(async (content: string, file?: File) => {
+const handleSend = useCallback(async (content: string, file?: File) => {
   if (!currentUser || currentUser.isGuest) {
     alert("אורחים אינם מורשים לשלוח הודעות");
     return;
   }
 
-  if (!file && (!content || content.trim() === "")) {
-    console.warn("ניסיון שליחת הודעה ריקה נחסם");
-    return; 
-  }
+  // בדיקה בסיסית: שלא ישלח הודעה ריקה לגמרי
+  if (!file && (!content || content.trim() === "")) return;
 
   try {
-    let uploadedUrl = "";
-    
-    // 1. העלאת קובץ
+    const formData = new FormData();
+
+    // 1. הוספת הקובץ - רק אם הוא באמת קיים!
     if (file) {
+      formData.append("image", file); 
+    }
+
+    const roleObj = JSON.parse(localStorage.getItem("userRole") || '{"role":"Client"}');
+    const cleanRole = roleObj.role || roleObj;
+    // 2. הוספת הנתונים - תמיד נשלחים
+    formData.append("Content", content || "");
+    formData.append("CreatedAt", new Date().toISOString());
+    formData.append("ConversationId", conversationId || "");
+    formData.append("SenderId", String(currentUser.id || 0));
+    formData.append("SenderName", currentUser.fullName || "");
+    formData.append("SenderRole", cleanRole || currentUser.role?.role || "Client");
+    formData.append("CategoryId", String(currentUser.categoryId || 0));
+
+    console.log("conversationId:", conversationId);
+    // 3. שליחה לשרת
+    const response = await api.post("Message/send", formData);
+
+    if(response) {
+      console.log("ההודעה נשלחה בהצלחה!");
       const formData = new FormData();
-      formData.append("file", file);
-      const uploadRes = await api.post("Message/upload", formData); 
-      uploadedUrl = uploadRes.data.url; 
+
+    // קובץ
+    if (file) {
+      formData.append("image", file);
     }
 
-    // 2. בניית ה-DTO
-    const messageDto = {
-      id: 0,
-      content: content || "",
-      createdAt: new Date().toISOString(),
-      senderId: (currentUser as any).id || 0,
-      senderName: currentUser.fullName,
-      senderRole: currentUser.role?.role || "Client", 
-      imageUrl: uploadedUrl,
-      categoryId: Number(currentUser.categoryId) || 0 
-    };
+    // טקסט
+    formData.append("prompt", content);
 
-    // 3. שליחה ל-API
-    const response = await api.post("Message/send", messageDto);
-
-    // 4. הכנת האובייקט לתצוגה (מוודא שלא יהיה undefined)
-    // אם השרת החזיר נתונים, נשתמש בהם. אם לא, ב-DTO שלנו.
-    const messageToDisplay = response.data || messageDto;
-    if (!messageToDisplay.id) messageToDisplay.id = Math.random();
-
-    
-
-    // 6. SignalR - בדרך כלל השרת (Controller) כבר משדר לכולם, 
-    // אבל אם את בכל זאת עושה invoke, עטפי אותו ב-try catch בלי לחכות (await)
-    if (connection && connection.state === "Connected") {
-        connection.invoke("SendMessage", messageToDisplay).catch(err => 
-            console.error("SignalR Invoke Error:", err)
-        );
+      const updateMessageCategortId = await api.post("Message/analyze",formData);
+      console.log("הקטגוריה עודכנה בהצלחה!", updateMessageCategortId);
     }
+
+    // ניקוי השדות במידה והצליח
+    // (כאן את יכולה להוסיף לוגיקה של איפוס ה-input)
 
   } catch (error) {
-    console.error("שגיאה בתהליך השליחה:", error);
+    console.error("שגיאה בשליחה:", error);
     alert("חלה שגיאה בשליחת ההודעה");
   }
-}, [currentUser, connection]);
+}, [currentUser, conversationId]);
 
   const displayMessages = messages.filter(msg => {
     if (!currentUser) return false;
@@ -239,14 +270,19 @@ useEffect(() => {
     );
   }
 
-  return (
-    <div className="h-screen flex flex-col overflow-hidden font-sans">
+ return (
+    <div 
+      className="h-screen flex flex-col overflow-hidden font-sans"
+      onClick={handleInteraction} // קורא לפונקציה החדשה שבודקת אם כבר אישרנו
+    >
       <ChatHeader onlineCount={1} />
 
       <div className="flex-1 overflow-y-auto px-4 py-4" style={{ backgroundColor: "#f0f2f5" }}>
         <div className="max-w-3xl mx-auto space-y-4">
           {displayMessages.map((msg, idx) => {
-            const isOwn = msg.senderName === (currentUser.fullName || currentUser.fullName);            return (
+            // תיקון קטן: בדיקה שהשולח הוא לא אני (לפי ה-fullName)
+            const isOwn = msg.senderName === currentUser.fullName;
+            return (
               <div key={idx} className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full ${getAvatarColor2(msg.senderName)} text-white flex items-center justify-center text-[10px] font-bold shadow-sm`}>
                   {getInitials(msg.senderName)}
@@ -288,7 +324,7 @@ useEffect(() => {
                 <div className={`w-6 h-6 rounded-full ${getAvatarColor2(currentUser.fullName)} text-white flex items-center justify-center text-[10px] font-bold`}>
                    {getInitials(currentUser.fullName)}
                 </div>
-                <span className="text-xs text-gray-500 font-bold">כותבת כעת: {currentUser.fullName}</span>
+                <span className="text-xs text-gray-500 font-bold">כותב כעת: {currentUser.fullName}</span>
               </div>
               <ChatInput onSend={handleSend} disabled={!connection} />
             </>
@@ -296,5 +332,4 @@ useEffect(() => {
         </div>
       </div>
     </div>
-  );
-}
+  )};
