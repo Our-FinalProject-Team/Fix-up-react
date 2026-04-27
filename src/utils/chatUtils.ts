@@ -11,10 +11,10 @@ export const getAvatarColor2 = (name: any): string => {
 };
 
 export const getInitials = (name: any): string => {
-  if (!name || typeof name !== 'string') return "U";
+  if (!name || typeof name !== 'string') return "I";
   const parts = name.trim().split(/\s+/);
   if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  return name[0] ? name[0].toUpperCase() : "U";
+  return name[0] ? name[0].toUpperCase() : "I";
 };
 
 export const formatDateTime = (dateString?: string) => {

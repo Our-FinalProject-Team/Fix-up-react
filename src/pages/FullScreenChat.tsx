@@ -107,7 +107,6 @@ useEffect(() => {
       const endpoint = userRole?.role === "Client" ? "Clients/me" : "Professionals/me";
       
       const response = await api.get(endpoint);
-      console.log(response.data);
       
       if (response.data) {
         setCurrentUser({ ...response.data, isGuest: false });
@@ -153,7 +152,8 @@ useEffect(() => {
       const connectionPromise = newConnection.start();
 
       const [historyResponse] = await Promise.all([historyPromise, connectionPromise]);
-      
+      getInitials(historyResponse.data?.[0]?.senderName || "מערכת אוטומטית"); // וודא שיש שם לשימוש בהודעות
+
       console.log("Connected to SignalR!");
       setConnection(newConnection);
       
@@ -168,6 +168,17 @@ useEffect(() => {
         }
       });
 
+      newConnection.on("ReceiveNewJob", (job: any) => {
+        console.log("הגיעה הצעה לעבודה חדשה!", job);
+        
+        
+        const chatLink = `/chat/${job.conversationId}`; 
+        console.log(chatLink);
+        
+        // // למשל, להקפיץ התראה או לעדכן רשימת פניות
+        // setNewJobs(prev => [...prev, job]); 
+    });
+
     } catch (err) {
       console.error("Connection or History failed: ", err);
     } finally {
@@ -180,6 +191,8 @@ useEffect(() => {
   return () => {
     if (newConnection) {
       newConnection.off("ReceiveMessage");
+      newConnection.off("ReceiveNewJob");
+
       newConnection.stop();
     }
   };
@@ -219,7 +232,7 @@ const handleSend = useCallback(async (content: string, file?: File) => {
     categoryId: currentUser.categoryId || 0,
     conversationId: conversationId || "",
     imageUrl: file ? URL.createObjectURL(file) : undefined ,
-    senderId: ""
+    senderId: currentUser.id ? String(currentUser.id) : "0"
   };
 
   // 2. עדכון ה-UI באופן מיידי
