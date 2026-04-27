@@ -26,14 +26,13 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
 
 const navItems = [   
     { name: 'שירותים', icon: Search, page: 'Services' },
-    //{ name: 'מסלול', icon: MapPin, page: 'TrackService' },
     { name: 'פרופיל', icon: User, page: 'Profile' },   
     { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
      { name: 'איך זה עובד', icon: User, page: 'HowItWorks' }, 
      { name: 'עמוד הבית', icon: Home, page: 'Home' },
   ];
 
-  const isFullScreenPage = ['TrackService'].includes(currentPageName);
+  const isFullScreenPage = ['TrackService','ProDashboard'].includes(currentPageName);
 
   return (
     <div className="min-h-screen bg-gray-50">

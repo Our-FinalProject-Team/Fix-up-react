@@ -14,11 +14,16 @@ import {
   Sparkles,
   Star,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Key,
+  LayoutGrid,
+  Leaf,
+  Tv
 } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import axios from 'axios';
 
 // Type definitions
 interface Category {
@@ -36,12 +41,16 @@ interface ServiceIcon {
 
 interface Service {
   id: number;
-  name: string;
+  address:string;
+  fullName: string;
+  email: string;
   category: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  duration: string;
+  calloutfee: number;
+  phoneNumber:string;
+  baseHourlyRate: number;
+  specality: string;
+  totalreviews:number;
+  averageRating:number;
 }
 
 // Categories
@@ -55,6 +64,10 @@ const categories: Category[] = [
   { id: 'אבטחה', name: 'אבטחה', icon: Shield, color: 'from-slate-400 to-gray-600' },
   { id: 'בנייה', name: 'בנייה', icon: Hammer, color: 'from-orange-400 to-red-500' },
   { id: 'ניקיון', name: 'ניקיון', icon: Sparkles, color: 'from-cyan-400 to-blue-500' },
+  { id: 'מכשירי חשמל', name: 'מכשירי חשמל', icon: Tv, color: 'from-indigo-400 to-blue-600' },
+  { id: 'גינון', name: 'גינון', icon: Leaf, color: 'from-green-400 to-emerald-600' },
+  { id: 'חיפוי קירות', name: 'חיפוי קירות', icon: LayoutGrid, color: 'from-rose-400 to-red-600' },
+  { id: 'מנעולן', name: 'מנעולן', icon: Key, color: 'from-gray-500 to-slate-800' }, 
 ];
 
 // Service icons mapping
@@ -67,27 +80,22 @@ const serviceIcons: Record<string, ServiceIcon> = {
   'אבטחה': { icon: Shield, color: 'from-slate-400 to-gray-600', bg: 'bg-slate-50' },
   'בנייה': { icon: Hammer, color: 'from-orange-400 to-red-500', bg: 'bg-orange-50' },
   'ניקיון': { icon: Sparkles, color: 'from-cyan-400 to-blue-500', bg: 'bg-cyan-50' },
+  'מכשירי חשמל': { icon: Tv, color: 'from-indigo-400 to-blue-600', bg: 'bg-indigo-50' },
+  'גינון': { icon: Leaf, color: 'from-green-400 to-emerald-600', bg: 'bg-green-50' },
+  'חיפוי קירות': { icon: LayoutGrid, color: 'from-rose-400 to-red-600', bg: 'bg-rose-50' },
+  'מנעולן': { icon: Key, color: 'from-gray-500 to-slate-800', bg: 'bg-gray-100' },  
 };
 
 // Services
 const services: Service[] = [
-  { id: 1, name: 'תיקון כללי', category: 'תחזוקה', price: 49, rating: 4.9, reviews: 234, duration: '1-2 hrs' },
-  { id: 2, name: 'חיווט חשמלי', category: 'חשמל', price: 79, rating: 4.8, reviews: 189, duration: '2-3 hrs' },
-  { id: 3, name: 'תיקון צנרת', category: 'אינסטלציה', price: 89, rating: 4.9, reviews: 312, duration: '1-3 hrs' },
-  { id: 4, name: 'צביעה פנימית', category: 'צביעה', price: 199, rating: 4.7, reviews: 156, duration: '4-8 hrs' },
-  { id: 5, name: 'שירות למזגנים', category: 'מערכות מיזוג אויר', price: 99, rating: 4.8, reviews: 278, duration: '1-2 hrs' },
-  { id: 6, name: 'התקנת אבטחה', category: 'אבטחה', price: 149, rating: 4.9, reviews: 98, duration: '2-4 hrs' },
-  { id: 7, name: 'התקנת אבטחה', category: 'בנייה', price: 299, rating: 4.6, reviews: 67, duration: '1-2 days' },
-  { id: 8, name: 'ניקיון יסודי', category: 'ניקיון', price: 129, rating: 4.9, reviews: 445, duration: '3-5 hrs' },
-  { id: 9, name: 'התקנת ברזים', category: 'אינסטלציה', price: 59, rating: 4.8, reviews: 201, duration: '30-60 min' },
-  { id: 10, name: 'התקנת גוף תאורה', category: 'חשמל', price: 69, rating: 4.7, reviews: 167, duration: '1 hr' },
-  { id: 11, name: 'הרכבת רהיטים', category: 'תחזוקה', price: 45, rating: 4.8, reviews: 389, duration: '1-2 hrs' },
-  { id: 12, name: 'תיקון חימום', category: 'מערכות מיזוג אויר', price: 119, rating: 4.9, reviews: 134, duration: '2-3 hrs' },
+  { id: 1, fullName: 'תיקון כללי', category: 'תחזוקה', phoneNumber: '050-1234567', baseHourlyRate: 49, email: 'repair@example.com', calloutfee: 50, specality: 'תיקון כללי', totalreviews: 234, averageRating: 4.9, address: 'רחוב הגליל 1, תל אביב' },
 ];
 
 export default function Services(): JSX.Element {
   const location = useLocation();
-
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   
   const urlParams = new URLSearchParams(window.location.search);
   const initialCategory: string = urlParams.get('category') || 'all';
@@ -105,12 +113,69 @@ export default function Services(): JSX.Element {
     }
   }, [location.search]);
 
-  const filteredServices = services.filter(service => {
-    const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
-    const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+ const mapSpecialtyToCategory = (specialty: string) => {
+  const mapping: { [key: string]: string } = {
+    'טכנאי מוצרי חשמל': 'מכשירי חשמל',
+    'חשמלאי': 'חשמל',
+    'אינסטלטור': 'אינסטלציה',
+    'צבעי': 'צביעה',
+    'טכנאי מזגנים': 'מערכות מיזוג אויר',
+    'מתקין מערכות אבטחה': 'אבטחה',
+    'שיפוצניק/קבלן בניה': 'בנייה',
+    'ניקיון': 'ניקיון',
+    'גנן': 'גינון',
+    'רצף/מתקין חיפויים': 'חיפוי קירות',
+    'מנעולן': 'מנעולן',
+    'איש תחזוקה/הנידמן': 'תחזוקה',
+  };
 
+  return mapping[specialty] || 'תחזוקה'; 
+};
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('https://localhost:7230/api/Professionals');
+        
+        if (!response.data) {
+          throw new Error('שגיאה בטעינת הנתונים מהשרת');
+        }
+
+        const data = await response.data;
+        console.log(data);
+
+      const formattedServices = data.map((item: any) => ({
+        id: item.id,
+        fullName: item.fullName, // שונה מ-name ל-fullName כדי שיתאים ל-JSX שלך
+        category: mapSpecialtyToCategory(item.specialty),
+        baseHourlyRate: item.baseHourlyRate, 
+        averageRating: item.averageRating,
+        reviews: item.totalReviews,
+        address: item.address,
+        phoneNumber: item.phoneNumber
+    }));
+        
+        // כאן אנחנו מעדכנים את הסטייט בנתונים שהגיעו
+        setServices(formattedServices);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'שגיאה לא ידועה');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const filteredServices = services.filter((service) => {
+  // בדיקה אם הקטגוריה מתאימה (או שנבחר "הכל")
+  const matchesCategory = selectedCategory === 'all' || service.category === selectedCategory;
+  
+  // בדיקה אם שם בעל המקצוע מכיל את הטקסט שחיפשנו
+  const matchesSearch = service.fullName.toLowerCase().includes(searchQuery.toLowerCase());
+
+  return matchesCategory && matchesSearch;
+});
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -183,24 +248,24 @@ export default function Services(): JSX.Element {
                     
                     <div className="p-5">
                       <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-amber-600 transition-colors">
-                        {service.name}
+                        {service.fullName}
                       </h3>
                       
                       <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                          <span className="font-medium text-gray-900">{service.rating}</span>
-                          <span>({service.reviews})</span>
+                          <span className="font-medium text-gray-900">{service.averageRating}</span>
+                          {/* <span>({service.totalreviews})</span> */}
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span>{service.duration}</span>
+                          <span>30 דקות</span>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-2xl font-bold text-gray-900">${service.price}</span>
+                          <span className="text-2xl font-bold text-gray-900">${service.baseHourlyRate}</span>
                           <span className="text-sm text-gray-500 ml-1">החל מ</span>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center group-hover:bg-amber-500 transition-colors">
@@ -215,7 +280,7 @@ export default function Services(): JSX.Element {
           </AnimatePresence>
         </div>
 
-        {filteredServices.length === 0 && (
+        {services.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

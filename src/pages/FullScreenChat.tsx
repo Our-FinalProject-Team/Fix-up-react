@@ -30,15 +30,15 @@ interface User {
 
 interface Message {
   id?: string;
- conversationId?: string;
   content: string;
+  createdAt?: string;
+  conversationId?: string;
+  senderId: string,
   senderName: string;
   senderRole: string;
-  imageUrl?: string;
-  createdAt?: string;
   categoryId: number;
+  imageUrl?: string;
 }
-
 
 
 export default function Chat() {
@@ -50,6 +50,7 @@ export default function Chat() {
       content: "👏 Fix-Up ברוכים הבאים לאפליקציית\n" + 
              "כדי שנוכל לתת לכם מענה מהיר ומדויק, נשמח אם תתארו בקצרה את מהות התקלה\n" +
              "טיפ: צרוף תמונה 📸 יעזור לנו לתת לכם חווית שירות טובה יותר",
+      senderId: "10000",
       senderName: "מערכת אוטומטית",
       senderRole: "System",
       createdAt: new Date().toISOString(),
@@ -113,7 +114,6 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("שגיאה בטעינת נתוני משתמש:", error);
-      // במקרה של שגיאה (למשל טוקן פג תוקף), נחזיר למצב אורח
       setCurrentUser({
         email: "guest@example.com",
         fullName: "אורח",
@@ -177,7 +177,6 @@ useEffect(() => {
 
   startConnection();
 
-  // 3. Cleanup - ניקוי החיבור
   return () => {
     if (newConnection) {
       newConnection.off("ReceiveMessage");
@@ -190,6 +189,7 @@ useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  
   const handleInteraction = () => {
   if (!hasUnlockedAudio) {
     // מפעילים פעם אחת בלבד כדי "לאשר" לדפדפן, ואז מפסיקים
@@ -204,53 +204,55 @@ const handleSend = useCallback(async (content: string, file?: File) => {
     return;
   }
 
-  // בדיקה בסיסית: שלא ישלח הודעה ריקה לגמרי
   if (!file && (!content || content.trim() === "")) return;
+
+  // 1. יצירת אובייקט הודעה זמני כדי להציג מיד על המסך
+  const roleObj = JSON.parse(localStorage.getItem("userRole") || '{"role":"Client"}');
+  const cleanRole = roleObj.role || roleObj;
+
+  const tempMessage: Message = {
+    id: Date.now().toString(), // מזהה זמני
+    content: content,
+    senderName: currentUser.fullName,
+    senderRole: cleanRole,
+    createdAt: new Date().toISOString(),
+    categoryId: currentUser.categoryId || 0,
+    conversationId: conversationId || "",
+    imageUrl: file ? URL.createObjectURL(file) : undefined ,
+    senderId: ""
+  };
+
+  // 2. עדכון ה-UI באופן מיידי
+  setMessages(prev => [...prev, tempMessage]);
 
   try {
     const formData = new FormData();
-
-    // 1. הוספת הקובץ - רק אם הוא באמת קיים!
-    if (file) {
-      formData.append("image", file); 
-    }
-
-    const roleObj = JSON.parse(localStorage.getItem("userRole") || '{"role":"Client"}');
-    const cleanRole = roleObj.role || roleObj;
-    // 2. הוספת הנתונים - תמיד נשלחים
+    if (file) formData.append("image", file);
+    
     formData.append("Content", content || "");
     formData.append("CreatedAt", new Date().toISOString());
     formData.append("ConversationId", conversationId || "");
     formData.append("SenderId", String(currentUser.id || 0));
     formData.append("SenderName", currentUser.fullName || "");
-    formData.append("SenderRole", cleanRole || currentUser.role?.role || "Client");
+    formData.append("SenderRole", cleanRole);
     formData.append("CategoryId", String(currentUser.categoryId || 0));
 
-    console.log("conversationId:", conversationId);
-    // 3. שליחה לשרת
+    // 3. שליחה לשרת ברקע
     const response = await api.post("Message/send", formData);
 
-    if(response) {
-      console.log("ההודעה נשלחה בהצלחה!");
-      const formData = new FormData();
-
-    // קובץ
-    if (file) {
-      formData.append("image", file);
+    if (response.data && response.data.success) {
+      // כאן אפשר לעדכן את המזהה הזמני במזהה האמיתי מהשרת אם רוצים
+      console.log("נשלח בהצלחה");
+      
+      // שליחה לניתוח (Analyze) כפי שעשית קודם
+      const analyzeData = new FormData();
+      if (file) analyzeData.append("image", file);
+      analyzeData.append("prompt", content);
+      await api.post("Message/analyze", analyzeData);
     }
-
-    // טקסט
-    formData.append("prompt", content);
-
-      const updateMessageCategortId = await api.post("Message/analyze",formData);
-      console.log("הקטגוריה עודכנה בהצלחה!", updateMessageCategortId);
-    }
-
-    // ניקוי השדות במידה והצליח
-    // (כאן את יכולה להוסיף לוגיקה של איפוס ה-input)
-
   } catch (error) {
     console.error("שגיאה בשליחה:", error);
+    // אופציונלי: למחוק את ההודעה מהמסך אם השליחה נכשלה
     alert("חלה שגיאה בשליחת ההודעה");
   }
 }, [currentUser, conversationId]);
@@ -265,7 +267,7 @@ const handleSend = useCallback(async (content: string, file?: File) => {
     return (
       <div className="h-screen flex items-center justify-center bg-zinc-50 font-sans">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <p className="mr-2 text-zinc-500">טוען צ'אט...</p>
+        <p className="mr-2 text-zinc-500">טוען צ'אט</p>
       </div>
     );
   }
@@ -281,8 +283,7 @@ const handleSend = useCallback(async (content: string, file?: File) => {
         <div className="max-w-3xl mx-auto space-y-4">
           {displayMessages.map((msg, idx) => {
             // תיקון קטן: בדיקה שהשולח הוא לא אני (לפי ה-fullName)
-            const isOwn = msg.senderName === currentUser.fullName;
-            return (
+            const isOwn = String(msg.senderId) === String(currentUser.id);            return (
               <div key={idx} className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full ${getAvatarColor2(msg.senderName)} text-white flex items-center justify-center text-[10px] font-bold shadow-sm`}>
                   {getInitials(msg.senderName)}

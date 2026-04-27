@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
 import { 
@@ -22,6 +22,8 @@ import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { useNavigate } from 'react-router-dom';
 
 import ServiceReviewsPreview from '../components/reviews/ServiceReviewsPreview';
+import api from './api';
+import { toast } from '@/components/ui/use-toast';
 
 interface Service {
   id: number;
@@ -92,12 +94,90 @@ const dates: DateOption[] = Array.from({ length: 7 }, (_, i) => {
 
 export default function BookService() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [step, setStep] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState<DateOption>(dates[0]);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [address, setAddress] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
-  const[name,setName]=useState<string>(''); 
+  const[name,setName]=useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingTime, setBookingTime] = useState('');
+  const [serviceData, setServiceData] = useState<Service | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [professionals, setProfessionals] = useState<Service[]>([]);
+
+  useEffect(() => {
+  const fetchAll = async () => {
+    try {
+      setIsLoading(true);
+      // פנייה ל-API שמחזיר את כל הרשימה
+      const response = await api.get('/Professionals'); 
+      setProfessionals(response.data);
+    } catch (error) {
+      console.error("שגיאה בטעינת בעלי מקצוע:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchAll();
+}, []);
+
+  const handleSumbitOrder = async () => {
+  if (!selectedDate || !selectedTime) {
+    toast({ title: "שגיאה", description: "אנא בחר תאריך ושעה", variant: "destructive" });
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  // חילוץ נתונים מה-URL
+  const proId = searchParams.get('id');
+  const categoryId = searchParams.get('categoryId') || "1"; 
+  const categoryName = searchParams.get('categoryName') || "שירות כללי";
+
+  try {
+    const response = await api.get("/Clients/me");
+    const storedUser = response.data;
+    
+    if (!storedUser) {
+      toast({ title: "שגיאה", description: "עליך להתחבר", variant: "destructive" });
+      navigate('/login');
+      return;
+    }
+
+    // יצירת אובייקט תאריך תקין מהבחירה ב-UI
+    const year = selectedDate.date.getFullYear();
+    const month = selectedDate.date.getMonth();
+    const day = selectedDate.date.getDate();
+    const [hours, minutes] = selectedTime.label.split(':');
+    const scheduledDate = new Date(year, month, day, parseInt(hours), parseInt(minutes));
+
+    const orderData = {
+      ClientId: storedUser.id,
+      ProfessionalId: Number(proId),
+      CategoryId: Number(categoryId),
+      Address: address,
+      ScheduledDate: scheduledDate.toISOString(),
+      Description: notes,
+      Subject: categoryName
+    };
+
+    await api.post('/Requests', orderData);
+    setStep(4); // מעבר למסך הצלחה
+  } catch (error: any) {
+    toast({ 
+      title: "שגיאה בביצוע ההזמנה", 
+      description: error.response?.data?.message || "שרת לא זמין", 
+      variant: "destructive" 
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -206,15 +286,13 @@ export default function BookService() {
               </div>
             </Card>
 
-            <Button
-            onClick={() => navigate(createPageUrl('Login'))}
-              //onClick={()=>createPageUrl('Login')}
-              //onClick={() => setStep(2)}
-              className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
-            >
-              המשך לתשלום
-              <ChevronRight className="w-5 h-5 ml-2" />
-            </Button>
+          <Button
+          onClick={() => setStep(2)} // מעבר לבחירת תאריך ושעה
+          className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
+        >
+          המשך לבחירת זמן
+          <ChevronRight className="w-5 h-5 ml-2" />
+        </Button>
           </motion.div>
         )}
 
@@ -330,16 +408,14 @@ export default function BookService() {
               >
                 חזרה
               </Button>
-              <Button
-              onClick={() => navigate(createPageUrl('Payment'))}
-              //onClick={()=>createPageUrl('Payment')}
-                disabled={!selectedTime || !address}
-                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
-              >
-
-                המשך לתשלום
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Button>
+                      <Button
+            onClick={handleSumbitOrder} // הפעלת השמירה ל-DB
+            disabled={!selectedTime || !address || isSubmitting}
+            className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
+          >
+            {isSubmitting ? "שומר הזמנה..." : "אשר הזמנה וסיים"}
+            {!isSubmitting && <ChevronRight className="w-5 h-5 ml-2" />}
+          </Button>
             </div>
           </motion.div>
         )}
