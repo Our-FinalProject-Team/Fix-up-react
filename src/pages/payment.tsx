@@ -330,6 +330,7 @@
 import React, { useState, ChangeEvent } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Lock, Mail, Phone, User, Shield, CheckCircle } from 'lucide-react';
+import axios from 'axios';//יבוא הסיפריה כדי לגשת לשרת
 
 // פונקציות עזר - ללא שינוי
 function formatCardNumber(value: string): string {
@@ -387,8 +388,33 @@ export default function Payment() {
       </div>
     );
   }
+  const handlePayment = async () => {
+    try {
+        // הכנת האובייקט שיישלח לשרת (תואם ל-RequestCreateDto שלך)
+        const requestData = {
+            clientId: 1, // כאן אמור לבוא ה-ID של המשתמש המחובר, כרגע נשים 1 לצורך הבדיקה
+            subject: "תיקון תקלה חדש", 
+            description: "בוצע תשלום והזמנה דרך דף התשלום",
+            customerName: form.cardName || "לקוח FixUp",
+            customerEmail: form.email, // המייל שאליו יישלח המייל הראשון
+            imageUrl: "" // כאן תוכלי להוסיף את נתיב התמונה אם תרצי
+        };
 
+        // שליחת הבקשה לשרת
+        // הכתובת צריכה להיות הכתובת של ה-RequestsController שלך
+        await axios.post('http://localhost:5145/api/Requests/create', requestData);
+
+        // אם השליחה הצליחה - נציג את הודעת האישור ב-React
+        setPaid(true);
+        
+        // כאן השרת כבר שולח את המייל ללקוח באופן אוטומטי!
+    } catch (error) {
+        console.error("Error creating request:", error);
+        alert("חלה שגיאה בשליחת הבקשה. בדוק שהשרת פועל.");
+    }
+};
   return (
+    
     <div className="min-h-screen bg-[#fcfcfc] py-12 px-4 font-sans">
       <div className="max-w-md mx-auto">
 
@@ -527,13 +553,21 @@ export default function Payment() {
           </div>
 
           {/* Pay Button - Updated to match Emerald action button in your image */}
-          <button
+          {/* <button
             onClick={() => setPaid(true)}
             className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow-lg shadow-emerald-100 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
           >
             <Lock className="w-4 h-4" />
             בוא נתחיל
-          </button>
+          </button> */}
+
+<button
+  onClick={handlePayment} // כאן שינינו מ-setPaid לפונקציה החדשה
+  className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg shadow-lg shadow-emerald-100 transition-all hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2"
+>
+  <Lock className="w-4 h-4" />
+  בוא נתחיל
+</button>
 
           <p className="text-center text-[11px] text-gray-300">
              SSL הנתונים שלך מוצפנים היטב בעזרת אבטחת 
