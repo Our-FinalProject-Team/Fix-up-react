@@ -1,3 +1,4 @@
+
 import { format, isValid } from "date-fns";
 
 interface MessageBubbleProps {
@@ -7,11 +8,25 @@ interface MessageBubbleProps {
 }
 
 export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
-  // 1. הזמן מגיע כבר מוכן כטקסט מהקומפוננטה האבא (Chat.tsx)
+  // 1. זמן ההודעה
   const displayTime = message.createdAt || "--:--";
 
-  // 2. חילוץ ה-URL של התמונה (תומך בשני הפורמטים: imageUrl או image_url)
+  // 2. חילוץ ה-URL של התמונה
   const imgPath = message.imageUrl || message.image_url;
+
+  // פונקציית עזר לבניית ה-URL הנכון
+  const getFullImageUrl = (path: string) => {
+    if (!path) return "";
+    // אם הכתובת היא כבר URL מלא (מתחילה ב-http) או שהיא Blob מקומי (מתחילה ב-blob)
+    if (path.startsWith("http") || path.startsWith("blob:")) {
+      return path;
+    }
+    // אחרת, נוסיף את כתובת השרת (וודא שאין סלאש כפול)
+    const baseUrl = "https://localhost:7230";
+    return path.startsWith("/") ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+  };
+
+  const finalImgUrl = imgPath ? getFullImageUrl(imgPath) : null;
 
   return (
     <div className={`flex ${isOwn ? "justify-end" : "justify-start"} mb-2 w-full px-2`}>
@@ -24,23 +39,22 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           : "bg-white text-zinc-800 shadow-sm rounded-tl-none mr-auto"}
       `}>
         
-        {/* הצגת תמונה - הוספת localhost:7230 חובה כאן */}
-        {imgPath && (
+        {/* הצגת תמונה */}
+        {finalImgUrl && (
           <div className="mb-2 rounded-lg overflow-hidden border border-black/5 bg-zinc-100">
             <img 
-              src={`https://localhost:7230${imgPath}`} 
+              src={finalImgUrl} 
               alt="קובץ שצורף" 
               className="max-h-64 w-full object-cover cursor-pointer hover:opacity-90 transition"
-              // מוודא שהתמונה תיפתח בחלון חדש עם הכתובת המלאה בלחיצה
-              onClick={() => window.open(`https://localhost:7230${imgPath}`, '_blank')}
-              // אם יש שגיאה בטעינת התמונה, נדפיס אותה כדי שנדע מה הכתובת הבעייתית
+              // פתיחה בחלון חדש רק עם הכתובת המעובדת והתקינה
+              onClick={() => window.open(finalImgUrl, '_blank')}
               onError={(e) => console.error("Image failed to load:", e.currentTarget.src)}
             />
           </div>
         )}
         
         {/* טקסט ההודעה */}
-        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-right">
+        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words text-right" dir="rtl">
           {message.content}
         </p>
         
