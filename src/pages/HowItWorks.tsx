@@ -75,7 +75,7 @@ const features: Feature[] = [
   { icon: Star, title: 'אחריות איכות', desc: "לא מרוצה? אנחנו נתקן את זה" },
   { icon: CreditCard, title: 'תמחור שקוף', desc: 'דע את העלות מראש, ללא עמלות נסתרות' },
   { icon: MessageCircle, title: 'צאט ישיר', desc: 'תקשר ישירות עם איש המקצוע שלך' },
-  { icon: MapPin, title: 'מעקב בזמן אמת', desc: 'עקוב אחר איש המקצוע שלך בזמן אמת על גבי המפה' },
+  { icon: MapPin, title: '  התאמה של מספר שפות', desc: 'בחר את השפה שלך לתקשורת חלקה' }
 ];
 
 export default function HowItWorks(): JSX.Element {

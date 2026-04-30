@@ -9,6 +9,7 @@ import PageNotFound from "./lib/PageNotFound";
 //import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import React, { ReactNode } from "react";
 import { AuthProvider } from "./pages/Contexts/AuthContext";
+import  ProtectedRoute  from "@/lib/ProtectedRoute";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? (Object.keys(Pages)[0] as string);
@@ -25,18 +26,15 @@ const LayoutWrapper: React.FC<LayoutWrapperProps> = ({ children, currentPageName
 
 // קומפוננטת AuthenticatedApp
 const AuthenticatedApp: React.FC = () => {
-  //const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
-
-  // Show loading spinner while checking app public settings or auth
-
-  // Render the main app
   return (
     <Routes>
       <Route
         path="/"
         element={
           <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
+            <ProtectedRoute path={mainPageKey}>
+              <MainPage />
+            </ProtectedRoute>
           </LayoutWrapper>
         }
       />
@@ -46,7 +44,9 @@ const AuthenticatedApp: React.FC = () => {
           path={`/${path}`}
           element={
             <LayoutWrapper currentPageName={path}>
-              <Page />
+              <ProtectedRoute path={path}>
+                <Page />
+              </ProtectedRoute>
             </LayoutWrapper>
           }
         />
