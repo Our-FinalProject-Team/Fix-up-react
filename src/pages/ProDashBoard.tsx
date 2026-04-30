@@ -12,6 +12,7 @@ import AvailabilityCalendar from '@/components/prodashboard/Calander';
 import InboxPanel from '@/components/prodashboard/InboxPanel';
 import ActiveMission from '@/components/prodashboard/ActiveMisson';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import api from './api';
 // --- Interfaces & Types ---
 
 interface Tab {
@@ -58,11 +59,10 @@ export default function TechnicianDashboard() {
   const [themeId, setThemeId] = useState<string>('dark');
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
   const [newJobs, setNewJobs] = useState<any[]>([]);
-
+  const [professionalCategory, setProfessionalCategory] = useState<number>(0); // הוספת State לקטגוריה של בעל המקצוע
   // מציאת ערכת הנושא הנוכחית - הוספת fallback ליתר ביטחון
   const currentTheme = THEMES.find(t => t.id === themeId) || THEMES[0];
   const isDark = themeId !== 'light';
-  const professionalCategory = 8;
   useEffect(() => {
   // 1. חיבור ל-SignalR
   const connection = new HubConnectionBuilder()
@@ -83,6 +83,20 @@ export default function TechnicianDashboard() {
     // toast.success("משימה חדשה הגיעה שמתאימה לתחום שלך!");
   });
 }, [professionalCategory]);
+
+useEffect(() => {
+    const fetchCategory = async () => {
+        try {
+            const response = await api.get("/Professionals/me");
+            // השדה categoryId מחושב בשרת בתוך ה-DTO ומגיע לכאן אוטומטית
+            setProfessionalCategory(response.data.categoryId); 
+        } catch (error) {
+            console.error("Error fetching category:", error);
+        }
+    };
+
+    fetchCategory();
+}, []);
 
   return (
     <div className={`min-h-screen ${currentTheme.bg} ${currentTheme.text} transition-colors duration-300`} dir="rtl">
@@ -206,7 +220,7 @@ export default function TechnicianDashboard() {
                 </aside>
                 {/* Center - Inbox/Messages */}
                 <section className="flex-1 w-full min-h-[600px]">
-                  <InboxPanel incomingJobs={newJobs}/>
+                  <InboxPanel incomingJobs={newJobs} professionalCategory={professionalCategory}/>
                 </section>
               </div>
             </motion.div>

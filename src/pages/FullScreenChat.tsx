@@ -41,7 +41,7 @@ interface Message {
 }
 
 
-export default function Chat() {
+export default  function Chat() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -152,6 +152,8 @@ useEffect(() => {
       const connectionPromise = newConnection.start();
 
       const [historyResponse] = await Promise.all([historyPromise, connectionPromise]);
+      console.log("this is the data",historyResponse.data?.[0]?.senderName);
+      
       getInitials(historyResponse.data?.[0]?.senderName || "מערכת אוטומטית"); // וודא שיש שם לשימוש בהודעות
 
       console.log("Connected to SignalR!");
@@ -160,10 +162,13 @@ useEffect(() => {
       // עדכון הודעות - אם אין היסטוריה, נשארים עם מערך ריק
       setMessages(Array.isArray(historyResponse.data) ? historyResponse.data : []);
 
+      await newConnection.invoke("JoinConversation", conversationId);
+
       // האזנה להודעות חדשות
       newConnection.on("ReceiveMessage", (message: Message) => {
         // חשוב: לוודא שההודעה שייכת לשיחה הנוכחית
         if (message.conversationId === conversationId) {
+          console.log("New message arrived:", message)
           setMessages(prev => [...prev, message]);
         }
       });
@@ -171,12 +176,6 @@ useEffect(() => {
       newConnection.on("ReceiveNewJob", (job: any) => {
         console.log("הגיעה הצעה לעבודה חדשה!", job);
         
-        
-        const chatLink = `/chat/${job.conversationId}`; 
-        console.log(chatLink);
-        
-        // // למשל, להקפיץ התראה או לעדכן רשימת פניות
-        // setNewJobs(prev => [...prev, job]); 
     });
 
     } catch (err) {
@@ -222,7 +221,8 @@ const handleSend = useCallback(async (content: string, file?: File) => {
   // 1. יצירת אובייקט הודעה זמני כדי להציג מיד על המסך
   const roleObj = JSON.parse(localStorage.getItem("userRole") || '{"role":"Client"}');
   const cleanRole = roleObj.role || roleObj;
-
+  console.log("this is the user name",currentUser.fullName);
+  
   const tempMessage: Message = {
     id: Date.now().toString(), // מזהה זמני
     content: content,
