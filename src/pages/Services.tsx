@@ -91,6 +91,8 @@ const services: Service[] = [
   { id: 1, fullName: 'תיקון כללי', category: 'תחזוקה', phoneNumber: '050-1234567', baseHourlyRate: 49, email: 'repair@example.com', calloutfee: 50, specality: 'תיקון כללי', totalreviews: 234, averageRating: 4.9, address: 'רחוב הגליל 1, תל אביב' },
 ];
 
+
+
 export default function Services(): JSX.Element {
   const location = useLocation();
   const [services, setServices] = useState<Service[]>([]);

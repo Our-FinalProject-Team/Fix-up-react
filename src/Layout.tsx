@@ -23,14 +23,31 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isLoggedIn, logout } = useAuth();
+  const userData = JSON.parse(localStorage.getItem('userRole') || '{}');
+  const userRole = userData.role;
 
-const navItems = [   
-    { name: 'שירותים', icon: Search, page: 'Services' },
-    { name: 'פרופיל', icon: User, page: 'Profile' },   
-    { name: 'הרשמה', icon: User, page: 'RegisterRole' }, 
-     { name: 'איך זה עובד', icon: User, page: 'HowItWorks' }, 
-     { name: 'עמוד הבית', icon: Home, page: 'Home' },
+
+  const publicItems = [
+    { name: 'עמוד הבית', icon: Home, page: 'Home' },
+    { name: 'איך זה עובד', icon: Search, page: 'HowItWorks' },
+
   ];
+
+  const ClientsItems = [
+    { name: 'שירותים', icon: Search, page: 'Services' },
+    { name: 'פרופיל', icon: User, page: 'Profile' },
+    {name: 'הרשמה', icon: User, page: 'RegisterRole'},
+  ];
+
+   const ProItems = [
+    { name: 'דשבורד', icon: Search, page: 'ProDashboard' },
+     ];
+
+  const visibleNavItems = !isLoggedIn 
+  ? [...publicItems, { name: 'הרשמה', icon: User, page: 'RegisterRole' }] // אורח רואה רק דפים ציבוריים והרשמה
+  : (userRole === "Client") 
+    ? [...publicItems, ...ClientsItems] 
+    : [...ProItems,...publicItems];
 
   const isFullScreenPage = ['TrackService','ProDashboard'].includes(currentPageName);
 
@@ -51,7 +68,7 @@ const navItems = [
 
               {/* Desktop Nav */}
               <nav className="hidden md:flex items-center gap-1">
-                {navItems.map((item) => (
+                {visibleNavItems.map((item) => (
                   <Link
                     key={item.page}
                     to={createPageUrl(item.page)}
@@ -120,7 +137,7 @@ const navItems = [
                 className="md:hidden border-t border-gray-100 bg-white overflow-hidden"
               >
                 <div className="px-4 py-4 space-y-2">
-                  {navItems.map((item) => (
+                  {visibleNavItems.map((item) => (
                     <Link
                       key={item.page}
                       to={createPageUrl(item.page)}
@@ -167,7 +184,7 @@ const navItems = [
       {!isFullScreenPage && (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 safe-area-pb">
           <div className="flex items-center justify-around py-2">
-            {navItems.map((item) => (
+            {visibleNavItems.map((item) => (
               <Link
                 key={item.page}
                 to={createPageUrl(item.page)}

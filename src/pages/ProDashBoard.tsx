@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, Zap, LayoutDashboard, TrendingUp, 
-  Sun, Moon, Palette, Check, LucideIcon,Home 
+  Sun, Moon, Palette, Check, LucideIcon,Home, 
+  Search
 } from 'lucide-react';
 
-// ייבוא קומפוננטות (בהנחה שגם הן הומרו ל-TS)
-//import ActiveMission from '@/components/technician/ActiveMission';
-//import PerformancePanel from '@/components/technician/PerformancePanel';
+
 import AvailabilityCalendar from '@/components/prodashboard/Calander';
 import InboxPanel from '@/components/prodashboard/InboxPanel';
 import ActiveMission from '@/components/prodashboard/ActiveMisson';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import HowItWorkPanel from '@/pages/HowItWorks.tsx';
+import HomePanel from '@/pages/Home.tsx';
 import api from './api';
 // --- Interfaces & Types ---
 
@@ -33,13 +34,11 @@ interface Theme {
   tabHover: string;
 }
 
-// --- Constants ---
 
 const TABS: Tab[] = [
   { id: 'overview', label: 'סקירה כללית', icon: LayoutDashboard },
-  { id: 'missions', label: 'משימות', icon: Zap },
-  { id: 'performance', label: 'ביצועים', icon: TrendingUp },
-  { id: 'home', label: 'עמוד הבית', icon: Home },
+  { id: 'HowitWorks', label: 'איך זה עובד', icon: Search },
+  { id: 'Home', label: 'עמוד הבית', icon: Home },
 
 ];
 
@@ -64,30 +63,35 @@ export default function TechnicianDashboard() {
   const currentTheme = THEMES.find(t => t.id === themeId) || THEMES[0];
   const isDark = themeId !== 'light';
   useEffect(() => {
-  // 1. חיבור ל-SignalR
+  if (professionalCategory === 0) return; // אל תתחבר אם עדיין אין קטגוריה
+
   const connection = new HubConnectionBuilder()
     .withUrl("https://localhost:7230/chatHub")
+    .withAutomaticReconnect()
     .build();
 
-  connection.start().then(() => {
-    // 2. הרשמה לקבוצה של בעל המקצוע (לפי הקטגוריה שלו מה-Profile)
-    connection.invoke("JoinCategoryGroup", professionalCategory);
+  connection.start()
+    .then(() => {
+      connection.invoke("JoinCategoryGroup", professionalCategory);
+    })
+    .catch(err => console.error("SignalR Error: ", err));
+
+  connection.on("ReceiveNewJob", (data) => {
+    setNewJobs(prev => [data, ...prev]);
   });
 
-  // 3. האזנה למשימות חדשות
-  connection.on("ReceiveNewJob", (data) => {
-    // כאן אתה מוסיף את ההודעה ל-State של "הודעות חדשות"
-    setNewJobs(prev => [data, ...prev]);
-    
-    // אפשר להוסיף כאן התראה קופצת (Toast)
-    // toast.success("משימה חדשה הגיעה שמתאימה לתחום שלך!");
-  });
+  // פונקציית ניקוי - חובה כדי למנוע כפילויות ברענון
+  return () => {
+    connection.stop();
+  };
 }, [professionalCategory]);
 
 useEffect(() => {
     const fetchCategory = async () => {
         try {
             const response = await api.get("/Professionals/me");
+            console.log(response.data);
+            
             // השדה categoryId מחושב בשרת בתוך ה-DTO ומגיע לכאן אוטומטית
             setProfessionalCategory(response.data.categoryId); 
         } catch (error) {
@@ -98,6 +102,25 @@ useEffect(() => {
     fetchCategory();
 }, []);
 
+useEffect(() => {
+    const fetchHistory = async () => {
+      console.log(professionalCategory);
+      
+        if (professionalCategory > 0) {
+            try {
+                // קריאה לשרת לקבלת הודעות ישנות של הקטגוריה הזו
+                const response = await api.get(`/Messages/category/${professionalCategory}`);
+                
+                // עדכון ה-State עם מה שחזר מה-DB
+                setNewJobs(response.data); 
+            } catch (error) {
+                console.error("Error fetching history:", error);
+            }
+        }
+    };
+
+    fetchHistory();
+}, [professionalCategory]); // ירוץ ברגע שהקטגוריה מתעדכנת
   return (
     <div className={`min-h-screen ${currentTheme.bg} ${currentTheme.text} transition-colors duration-300`} dir="rtl">
       
@@ -226,39 +249,34 @@ useEffect(() => {
             </motion.div>
           )}
 
-          {activeTab === 'missions' && (
-            <motion.div 
-              key="missions" 
-              initial={{ opacity: 0, scale: 0.98 }} 
-              animate={{ opacity: 1, scale: 1 }} 
+        
+
+        
+          {activeTab === 'HowitWorks' && (
+            <motion.div
+              key="HowitWorks" 
+              initial={{ opacity: 0 }
+            }
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <ActiveMission />
-            </motion.div>
+              <HowItWorkPanel />
+            </motion.div> 
           )}
 
-          {/* {activeTab === 'performance' && (
-            <motion.div 
-              key="performance" 
-              initial={{ opacity: 0, x: 20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <PerformancePanel />
-            </motion.div>
-          )} */}
-
-          {/* {activeTab === 'home' && (
+           {activeTab === 'Home' && (
             <motion.div
-              key="home" 
+              key="Home" 
               initial={{ opacity: 0 }
             }
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
               <HomePanel />
-            </motion.div> */}
-          {/* )} */}
+            </motion.div> 
+          )}
+
+
         </AnimatePresence>
       </main>
     </div>

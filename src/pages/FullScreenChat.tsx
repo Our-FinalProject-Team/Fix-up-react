@@ -152,7 +152,7 @@ useEffect(() => {
       const connectionPromise = newConnection.start();
 
       const [historyResponse] = await Promise.all([historyPromise, connectionPromise]);
-      console.log("this is the data",historyResponse.data?.[0]?.senderName);
+      console.log("this is the data",historyResponse.data);
       
       getInitials(historyResponse.data?.[0]?.senderName || "מערכת אוטומטית"); // וודא שיש שם לשימוש בהודעות
 
@@ -167,6 +167,9 @@ useEffect(() => {
       // האזנה להודעות חדשות
       newConnection.on("ReceiveMessage", (message: Message) => {
         // חשוב: לוודא שההודעה שייכת לשיחה הנוכחית
+        if (Number(message.senderId) === currentUser.id) {
+          return;
+        }
         if (message.conversationId === conversationId) {
           console.log("New message arrived:", message)
           setMessages(prev => [...prev, message]);

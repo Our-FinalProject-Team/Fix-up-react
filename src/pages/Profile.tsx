@@ -1,4 +1,4 @@
-import React, { JSX, useState } from 'react';
+import React, { JSX, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { motion } from 'framer-motion';
@@ -21,9 +21,10 @@ import {
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import api from './api';
 
 interface UserType {
-  name: string;
+  fullName: string;
   email: string;
   phone: string;
   avatar: string;
@@ -55,7 +56,7 @@ interface MenuItem {
 }
 
 const user: UserType = {
-  name: 'John Smith',
+  fullName: 'John Smith',
   email: 'john.smith@email.com',
   phone: '+1 (555) 123-4567',
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face',
@@ -65,8 +66,7 @@ const user: UserType = {
 };
 
 const savedAddresses: AddressType[] = [
-  { id: 1, label: 'בית', address: 'רחוב מיין 123, דירה 4 ,ניו יורק 10001', primary: true },
-  { id: 2, label: 'משרד', address: 'שדרת ביזנס 456,קומה 12,ניו יוקר 10002', primary: false },
+  { id: 1, label: '', address: 'רחוב מיין 123, דירה 4 ,ניו יורק 10001', primary: true },
 ];
 
 const recentBookings: BookingType[] = [
@@ -83,8 +83,25 @@ const menuItems: MenuItem[] = [
   { icon: Settings, label: 'הגדרות אפליקציה' },///////
 ];
 
+
 export default function Profile(): JSX.Element {
   const [notifications, setNotifications] = useState<boolean>(true);
+  const [currentUser,SetCurrentUser] = useState<UserType | null>(null);
+
+  useEffect(() => {
+  const fetchUserData = async () => {
+    try {
+      const res = await api.get("/Clients/me");
+      const user =  res.data;
+      console.log("User data:", user);
+      SetCurrentUser(user);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  fetchUserData();
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-8">
@@ -105,9 +122,8 @@ export default function Profile(): JSX.Element {
               </button>
             </div>
             <div className="text-white">
-              <h2 className="text-xl font-bold">{user.name}</h2>
-              <p className="text-gray-300 text-sm">{user.email}</p>
-              <p className="text-gray-400 text-sm mt-1">חבר מאז {user.memberSince}</p>
+              <h2 className="text-xl font-bold">{currentUser?.fullName}</h2>
+              <p className="text-gray-300 text-sm">{currentUser?.email}</p>
             </div>
           </div>
         </div>
@@ -122,7 +138,7 @@ export default function Profile(): JSX.Element {
                 <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-100 flex items-center justify-center mb-2">
                   <Clock className="w-6 h-6 text-amber-600" />
                 </div>
-                <p className="text-2xl font-bold text-gray-900">{user.totalBookings}</p>
+                <p className="text-2xl font-bold text-gray-900">{currentUser?.totalBookings || "0"}</p>
                 <p className="text-xs text-gray-500">הזמנות</p>
               </div>
               <div className="text-center border-x border-gray-100">
@@ -171,7 +187,7 @@ export default function Profile(): JSX.Element {
                         <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">כתובת ראשית</Badge>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500 truncate">{addr.address}</p>
+                    {/* <p className="text-sm text-gray-500 truncate">{currentUser?.address}</p> */}
                   </div>
                   <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
                     <Edit2 className="w-4 h-4 text-gray-400" />
@@ -183,7 +199,7 @@ export default function Profile(): JSX.Element {
         </motion.div>
 
         {/* Recent Bookings */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        {/* <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="rounded-3xl border-0 shadow-lg overflow-hidden">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-bold text-gray-900 flex items-center gap-2">
@@ -218,7 +234,7 @@ export default function Profile(): JSX.Element {
               ))}
             </div>
           </Card>
-        </motion.div>
+        </motion.div> */}
 
         {/* Settings Menu */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>

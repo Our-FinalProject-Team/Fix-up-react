@@ -96,7 +96,7 @@ finally {
           <InputField icon={Mail} label="אימייל" name="email" value={form.email} onChange={handleChange} placeholder="name@example.com" />
           <InputField icon={Lock} label="סיסמה" name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={handleChange} showToggle onToggle={() => setShowPassword(!showPassword)} isVisible={showPassword} />
 
-          <div className="text-left">
+          {/* <div className="text-left">
             <button 
               type="button"
               onClick={() => navigate("/ForgotPassword")} // ניווט בטוח
@@ -104,7 +104,7 @@ finally {
             >
               שכחת סיסמה?
             </button>
-          </div>
+          </div> */}
 
           <button type="submit" disabled={isSubmitting} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 flex items-center justify-center gap-2 transition-all">
             {isSubmitting ? "...מתחבר" : "כניסה למערכת"} <ArrowRight size={18} />
