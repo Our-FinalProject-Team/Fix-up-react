@@ -36,7 +36,9 @@ export default function LogIn() {
         password: form.password
       });
 
+
       const { token, role } = response.data;
+
       if(!token || !role)
        {
         toast({
@@ -45,9 +47,15 @@ export default function LogIn() {
           variant: "destructive",        
         });
        }
+
+      console.log("the role is",role);
+      
       localStorage.setItem("userToken", token);
-      localStorage.setItem("userRole", JSON.stringify({ role: role }));
-      login(token)
+      localStorage.setItem("userRole", role);
+      
+      
+      
+      login(token,role)
 
        toast({
                  title: "נכנסת בהצלחה",
@@ -55,7 +63,7 @@ export default function LogIn() {
                  className: "bg-emerald-600 text-white border-none shadow-2xl font-bold p-6",
                });
       
-      if (role === "Professional" || isPro) {
+      if (role === "Professional") {
         navigate("/ProDashBoard");
       } else {
         

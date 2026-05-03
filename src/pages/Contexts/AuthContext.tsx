@@ -20,21 +20,26 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [token, setToken] = useState(localStorage.getItem('userToken'));
+  const [userRole, setUserRole] = useState(localStorage.getItem('userRole'));
 
-  const login = (newToken:string) => {
+  const login = (newToken:string, newUserRole:string) => {
     localStorage.setItem('userToken', newToken); 
+    localStorage.setItem('userRole', newUserRole);
     setToken(newToken); 
+    setUserRole(newUserRole);
   };
 
   const logout = () => {
     localStorage.removeItem('userToken'); 
+    localStorage.removeItem('userRole');
     setToken(null); 
+    setUserRole(null);
   };
 
   const isLoggedIn = !!token;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, token, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, token, userRole, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

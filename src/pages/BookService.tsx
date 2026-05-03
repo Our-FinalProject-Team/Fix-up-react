@@ -1,1593 +1,364 @@
-// import React, { useEffect, useState } from 'react';
-// import { Link, useSearchParams } from 'react-router-dom';
-// import { createPageUrl } from '../utils';
-// import { motion } from 'framer-motion';
-// import { 
-//   ArrowLeft, 
-//   Star, 
-//   Clock, 
-//   MapPin, 
-//   Calendar,
-//   Check,
-//   Shield,
-//   CreditCard,
-//   ChevronRight
-// } from 'lucide-react';
-// import { Button } from '../components/ui/button';
-// import { Card } from '../components/ui/card';
-// import { Input } from '../components/ui/input';
-// import { Label } from '../components/ui/label';
-// import { Textarea } from '../components/ui/textarea';
-// import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
-// import { useNavigate } from 'react-router-dom';
-
-// import ServiceReviewsPreview from '../components/reviews/ServiceReviewsPreview';
-// import api from './api';
-// import { toast } from '@/components/ui/use-toast';
-
-// interface Service {
-//   id: number;
-//   name: string;
-//   category: string;
-//   price: number;
-//   rating: number;
-//   reviews: number;
-//   duration: string;
-//   image: string;
-//   description: string;
-//   includes: string[];
-// }
-
-// interface TimeSlot {
-//   id: string;
-//   label: string;
-//   available: boolean;
-// }
-
-// interface DateOption {
-//   date: Date;
-//   day: string;
-//   num: number;
-//   available: boolean;
-// }
-
-// const service: Service = {
-//   id: 1,
-//   name: 'General Repair',
-//   category: 'Maintenance',
-//   price: 49,
-//   rating: 4.9,
-//   reviews: 234,
-//   duration: '1-2 hrs',
-//   image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=400&fit=crop',
-//   description: 'שירותי תיקון מקצועיים לרהיטים, גופי תאורה ופריטים ביתיים כלליים. המומחים שלנו יכולים לטפל בכל דבר, החל מדלתות חורקות ועד מדפים שבורים.',
-//   includes: [
-//     'בדיקה והערכה',
-//     'תיקונים ותיקונים בסיסיים',
-//     'החלפת חלקים (בתשלום נוסף)',
-//     'ניקוי לאחר השירות',
-//     'אחריות שירות ל-30 יום'
-//   ]
-// };
-
-// const timeSlots: TimeSlot[] = [
-//   { id: '9am', label: '9:00 AM', available: true },
-//   { id: '10am', label: '10:00 AM', available: true },
-//   { id: '11am', label: '11:00 AM', available: false },
-//   { id: '1pm', label: '1:00 PM', available: true },
-//   { id: '2pm', label: '2:00 PM', available: true },
-//   { id: '3pm', label: '3:00 PM', available: true },
-//   { id: '4pm', label: '4:00 PM', available: false },
-//   { id: '5pm', label: '5:00 PM', available: true },
-// ];
-
-// const dates: DateOption[] = Array.from({ length: 7 }, (_, i) => {
-//   const date = new Date();
-//   date.setDate(date.getDate() + i);
-//   return {
-//     date: date,
-//     day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-//     num: date.getDate(),
-//     available: i !== 2 // third day unavailable for demo
-//   };
-// });
-
-// export default function BookService() {
-//   const navigate = useNavigate();
-//   const [searchParams] = useSearchParams();
-
-//   const [step, setStep] = useState<number>(1);
-//   const [selectedDate, setSelectedDate] = useState<DateOption>(dates[0]);
-//   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
-//   const [address, setAddress] = useState<string>('');
-//   const [notes, setNotes] = useState<string>('');
-//   const[name,setName]=useState<string>('');
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-//   const [bookingDate, setBookingDate] = useState('');
-//   const [bookingTime, setBookingTime] = useState('');
-//   const [serviceData, setServiceData] = useState<Service | null>(null);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [professionals, setProfessionals] = useState<Service[]>([]);
-
-//   useEffect(() => {
-//   const fetchAll = async () => {
-//     try {
-//       setIsLoading(true);
-//       // פנייה ל-API שמחזיר את כל הרשימה
-//       const response = await api.get('/Professionals'); 
-//       setProfessionals(response.data);
-//     } catch (error) {
-//       console.error("שגיאה בטעינת בעלי מקצוע:", error);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   fetchAll();
-// }, []);
-
-//   const handleSumbitOrder = async () => {
-//   if (!selectedDate || !selectedTime) {
-//     toast({ title: "שגיאה", description: "אנא בחר תאריך ושעה", variant: "destructive" });
-//     return;
-//   }
-
-//   setIsSubmitting(true);
-
-//   // חילוץ נתונים מה-URL
-//   const proId = searchParams.get('id');
-//   const categoryId = searchParams.get('categoryId') || "1"; 
-//   const categoryName = searchParams.get('categoryName') || "שירות כללי";
-
-//   try {
-//     const response = await api.get("/Clients/me");
-//     const storedUser = response.data;
-    
-//     if (!storedUser) {
-//       toast({ title: "שגיאה", description: "עליך להתחבר", variant: "destructive" });
-//       navigate('/login');
-//       return;
-//     }
-
-//     // יצירת אובייקט תאריך תקין מהבחירה ב-UI
-//     const year = selectedDate.date.getFullYear();
-//     const month = selectedDate.date.getMonth();
-//     const day = selectedDate.date.getDate();
-//     const [hours, minutes] = selectedTime.label.split(':');
-//     const scheduledDate = new Date(year, month, day, parseInt(hours), parseInt(minutes));
-
-//     const orderData = {
-//       ClientId: storedUser.id,
-//       ProfessionalId: Number(proId),
-//       CategoryId: Number(categoryId),
-//       Address: address,
-//       ScheduledDate: scheduledDate.toISOString(),
-//       Description: notes,
-//       Subject: categoryName
-//     };
-
-//     await api.post('/Requests', orderData);
-//     setStep(4); // מעבר למסך הצלחה
-//   } catch (error: any) {
-//     toast({ 
-//       title: "שגיאה בביצוע ההזמנה", 
-//       description: error.response?.data?.message || "שרת לא זמין", 
-//       variant: "destructive" 
-//     });
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
-//   return (
-//     <div className="min-h-screen bg-gray-50">
-//       {/* Header */}
-//       <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
-//         <div className="max-w-3xl mx-auto px-4 py-4">
-//           <div className="flex items-center gap-4">
-//             <Link to={createPageUrl('Services')}>
-//               <Button variant="ghost" size="icon" className="rounded-full">
-//                 <ArrowLeft className="w-5 h-5" />
-//               </Button>
-//             </Link>
-//             <div className="flex-1">
-//               <h1 className="font-bold text-gray-900">הזמן שירות</h1>
-//               <p className="text-sm text-gray-500">שלב {step} 3</p>
-//             </div>
-//           </div>
-          
-//           {/* Progress Bar */}
-//           <div className="flex gap-2 mt-4">
-//             {[1, 2, 3].map((s) => (
-//               <div
-//                 key={s}
-//                 className={`h-1 flex-1 rounded-full transition-colors ${
-//                   s <= step ? 'bg-amber-500' : 'bg-gray-200'
-//                 }`}
-//               />
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-//  <div className="max-w-3xl mx-auto px-4 py-6">
-//         {/* Step 1: Service Details */}
-//         {step === 1 && (
-//           <motion.div
-//             initial={{ opacity: 0, x: 20 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             className="space-y-6"
-//           >
-//             {/* Service Card */}
-//             <Card className="overflow-hidden border-0 shadow-lg rounded-3xl">
-//               <div className="relative h-48">
-//                 <img
-//                   src={service.image}
-//                   alt={service.name}
-//                   className="w-full h-full object-cover"
-//                 />
-//                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-//                 <div className="absolute bottom-4 left-4 right-4 text-white">
-//                   <p className="text-sm font-medium opacity-80">{service.category}</p>
-//                   <h2 className="text-2xl font-bold">{service.name}</h2>
-//                 </div>
-//               </div>
-              
-//               <div className="p-6">
-//                 <div className="flex items-center gap-6 mb-4">
-//                   <div className="flex items-center gap-1">
-//                     <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-//                     <span className="font-bold text-gray-900">{service.rating}</span>
-//                     <span className="text-gray-500">({service.reviews} ביקורות)</span>
-//                   </div>
-//                   <div className="flex items-center gap-1 text-gray-600">
-//                     <Clock className="w-5 h-5" />
-//                     <span>{service.duration}</span>
-//                   </div>
-//                 </div>
-                
-//                 <p className="text-gray-600 mb-6">{service.description}</p>
-                
-//                 <div className="bg-gray-50 rounded-2xl p-4">
-//                   <h3 className="font-semibold text-gray-900 mb-3">מה כלול</h3>
-//                   <ul className="space-y-2">
-//                     {service.includes.map((item, i) => (
-//                       <li key={i} className="flex items-start gap-3">
-//                         <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-//                           <Check className="w-3 h-3 text-emerald-600" />
-//                         </div>
-//                         <span className="text-gray-700">{item}</span>
-//                       </li>
-//                     ))}
-//                   </ul>
-//                 </div>
-//               {/* Reviews Section */}
-//               <div className="mt-8">
-//                 <ServiceReviewsPreview
-//                   professionalName={service.name}
-//                   serviceName={service.category}
-//                 />
-//               </div>
-//               </div>
-//             </Card>
-
-//             {/* Price Summary */}
-//             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-//               <div className="flex items-center justify-between mb-4">
-//                 <span className="text-gray-600">דמי שירות</span>
-//                 <span className="font-bold text-gray-900">${service.price}.00</span>
-//               </div>
-//               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-//                 <span>דמי שירות</span>
-//                 <span>$4.99</span>
-//               </div>
-//               <div className="h-px bg-gray-200 my-4" />
-//               <div className="flex items-center justify-between">
-//                 <span className="font-bold text-gray-900">סך הכל</span>
-//                 <span className="text-2xl font-bold text-gray-900">${service.price + 4.99}</span>
-//               </div>
-//             </Card>
-
-//           <Button
-//           onClick={() => setStep(2)} // מעבר לבחירת תאריך ושעה
-//           className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
-//         >
-//           המשך לבחירת זמן
-//           <ChevronRight className="w-5 h-5 ml-2" />
-//         </Button>
-//           </motion.div>
-//         )}
-
-//         {/* Step 2: Schedule */}
-//         {step === 2 && (
-          
-//           //יש לבדוק האם הוא יתחבר ולפי זה לשלוח אותו לאיזה דף ?
-
-
-
-//           <motion.div
-//             initial={{ opacity: 0, x: 20 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             className="space-y-6"
-//           >
-//             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-//               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-//                 <Calendar className="w-5 h-5 text-amber-500" />
-//                 בחר תאריך
-//               </h3>
-              
-//               <div className="grid grid-cols-7 gap-2">
-//                 {dates.map((d) => (
-//                   <button
-//                     key={d.num}
-//                     disabled={!d.available}
-//                     onClick={() => setSelectedDate(d)}
-//                     className={`p-3 rounded-2xl text-center transition-all ${
-//                       selectedDate?.num === d.num
-//                         ? 'bg-gray-900 text-white shadow-lg'
-//                         : d.available
-//                         ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-//                         : 'bg-gray-50 text-gray-300 cursor-not-allowed'
-//                     }`}
-//                   >
-//                     <p className="text-xs font-medium opacity-70">{d.day}</p>
-//                     <p className="text-lg font-bold">{d.num}</p>
-//                   </button>
-//                 ))}
-//               </div>
-//             </Card>
-
-//             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-//               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-//                 <Clock className="w-5 h-5 text-amber-500" />
-//                 בחר שעה
-//               </h3>
-              
-//               <div className="grid grid-cols-4 gap-3">
-//                 {timeSlots.map((slot) => (
-//                   <button
-//                     key={slot.id}
-//                     disabled={!slot.available}
-//                     onClick={() => setSelectedTime(slot)}
-//                     className={`p-3 rounded-xl text-center transition-all ${
-//                       selectedTime?.id === slot.id
-//                         ? 'bg-amber-500 text-gray-900 shadow-lg font-semibold'
-//                         : slot.available
-//                         ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-//                         : 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
-//                     }`}
-//                   >
-//                     {slot.label}
-//                   </button>
-//                 ))}
-//               </div>
-//             </Card>
-
-//             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-//               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-//                 <MapPin className="w-5 h-5 text-amber-500" />
-//                 מיקום שירות
-//               </h3>
-              
-//               <div className="space-y-4">
-//                 <div>
-//                   <Label htmlFor="address" className="text-gray-700 mb-2 block">שם</Label>
-//                    <Input
-//                     id="name"
-//                     placeholder="הקלד שם מלא"
-//                     value={name}
-//                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-//                     className="py-6 rounded-xl border-gray-200"
-//                   />
-//                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
-//                   <Input
-//                     id="address"
-//                     placeholder="הקלד כתובת מלאה"
-//                     value={address}
-//                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-//                     className="py-6 rounded-xl border-gray-200"
-//                   />
-//                 </div>
-                
-//                 <div>
-//                   <Label htmlFor="notes" className="text-gray-700 mb-2 block">הערות נוספות (אופציונלי)</Label>
-//                   <Textarea
-//                     id="notes"
-//                     placeholder="...הוראות או פרטים מיוחדים בנוגע לבעיה"
-//                     value={notes}
-//                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
-//                     className="rounded-xl border-gray-200 min-h-[100px]"
-//                   />
-//                 </div>
-//               </div>
-//             </Card>
-
-//             <div className="flex gap-3">
-//               <Button
-//                 variant="outline"
-//                 onClick={() => setStep(1)}
-//                 className="flex-1 py-6 rounded-2xl border-2"
-//               >
-//                 חזרה
-//               </Button>
-//                       <Button
-//             onClick={handleSumbitOrder} // הפעלת השמירה ל-DB
-//             disabled={!selectedTime || !address || isSubmitting}
-//             className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
-//           >
-//             {isSubmitting ? "שומר הזמנה..." : "אשר הזמנה וסיים"}
-//             {!isSubmitting && <ChevronRight className="w-5 h-5 ml-2" />}
-//           </Button>
-//             </div>
-//           </motion.div>
-//         )}
-
-//         {/* Step 3: Confirmation */}
-//         {step === 3 && (
-//           <motion.div
-//             initial={{ opacity: 0, x: 20 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             className="space-y-6"
-            
-//           >
-//             {/* ... rest is unchanged, types inferred automatically */}
-//           </motion.div>
-          
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
 import React, { useState } from 'react';
-
-import { Link, useSearchParams } from 'react-router-dom';
-import {useLocation } from "react-router-dom";
-
+import { Link} from 'react-router-dom';
 import { createPageUrl } from '../utils';
-
 import { motion } from 'framer-motion';
-
+import { useNavigate, useLocation } from "react-router-dom";
 import { 
-
   ArrowLeft, 
-
   Star, 
-
   Clock, 
-
   MapPin, 
-
   Calendar,
-
   Check,
-
   Shield,
-
   CreditCard,
-
-  ChevronRight,
-
-  CheckCircle
-
+  ChevronRight
 } from 'lucide-react';
-
 import { Button } from '../components/ui/button';
-
 import { Card } from '../components/ui/card';
-
 import { Input } from '../components/ui/input';
-
 import { Label } from '../components/ui/label';
-
 import { Textarea } from '../components/ui/textarea';
-
 import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 
-import { useNavigate } from 'react-router-dom';
-
-
-
 interface Service {
-
   id: number;
-
   name: string;
-
   category: string;
-
   price: number;
-
   rating: number;
-
   reviews: number;
-
   duration: string;
-
   image: string;
-
   description: string;
-
   includes: string[];
-
 }
-
-
 
 interface TimeSlot {
-
   id: string;
-
   label: string;
-
   available: boolean;
-
 }
-
-
 
 interface DateOption {
-
   date: Date;
-
   day: string;
-
   num: number;
-
   available: boolean;
-
 }
 
-
-
-
+const service: Service = {
+  id: 1,
+  name: 'General Repair',
+  category: 'Maintenance',
+  price: 49,
+  rating: 4.9,
+  reviews: 234,
+  duration: '1-2 hrs',
+  image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=400&fit=crop',
+  description: 'שירותי תיקון מקצועיים לרהיטים, גופי תאורה ופריטים ביתיים כלליים. המומחים שלנו יכולים לטפל בכל דבר, החל מדלתות חורקות ועד מדפים שבורים.',
+  includes: [
+    'בדיקה והערכה',
+    'תיקונים ותיקונים בסיסיים',
+    'החלפת חלקים (בתשלום נוסף)',
+    'ניקוי לאחר השירות',
+    'אחריות שירות ל-30 יום'
+  ]
+};
 
 const timeSlots: TimeSlot[] = [
-
   { id: '9am', label: '9:00 AM', available: true },
-
   { id: '10am', label: '10:00 AM', available: true },
-
   { id: '11am', label: '11:00 AM', available: false },
-
   { id: '1pm', label: '1:00 PM', available: true },
-
   { id: '2pm', label: '2:00 PM', available: true },
-
   { id: '3pm', label: '3:00 PM', available: true },
-
   { id: '4pm', label: '4:00 PM', available: false },
-
   { id: '5pm', label: '5:00 PM', available: true },
-
 ];
 
-
-
 const dates: DateOption[] = Array.from({ length: 7 }, (_, i) => {
-
   const date = new Date();
-
   date.setDate(date.getDate() + i);
-
   return {
-
     date: date,
-
     day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-
     num: date.getDate(),
-
     available: i !== 2 // third day unavailable for demo
-
   };
-
 });
 
-
-
 export default function BookService() {
-
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [searchParams] = useSearchParams();
-
-  
-
-  // Get professional data from URL parameters
-
-  const proName = searchParams.get('name') || "בעל מקצוע";
-
-  const proPrice = searchParams.get('price') || "100";
-
-  const proPhone = searchParams.get('phone') || "";
-
-  const proBio = searchParams.get('bio') || "שירות כללי";
-
-  const proId = searchParams.get('id') || "";
-
-  const proCategory = searchParams.get('category') || "";
-
-  
-
-  // Dynamic service details based on professional type
-
-  const getServiceDetails = (category: string) => {
-
-    const categoryLower = category.toLowerCase();
-
-    
-
-    if (categoryLower.includes('חשמל') || categoryLower.includes('חשמלאי')) {
-
-      return {
-
-        description: `שירות חשמל מקצועי מבוצע על ידי ${proName}. כולל אבחון תקלות, תיקון בטיחותי ובדיקת מערכות.`,
-
-        includes: [
-
-          'אבחון תקלות חשמליות',
-
-          'תיקון חיווט ומעגנים',
-
-          'החלפת רכיבים פגומים',
-
-          'בדיקת בטיחות מערכת',
-
-          'אחריות עבודה ל-30 יום'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('אינסטל') || categoryLower.includes('אינסטלטור')) {
-
-      return {
-
-        description: `שירות אינסטלציה מקצועי מבוצע על ידי ${proName}. כולל איתור נזילות, תיקון צנרות והתקנת קווים.`,
-
-        includes: [
-
-          'איתור ותיקון נזילות',
-
-          'החלפת צנרת פגומה',
-
-          'התקנת ברזים ומגבים',
-
-          'בדיקת לחצים מערכת',
-
-          'אחריות איטום ל-6 חודשים'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('מזג') || categoryLower.includes('טכנאי מזגנים')) {
-
-      return {
-
-        description: `שירות מיזוג אויר מקצועי מבוצע על ידי ${proName}. כולל טיפול, תיקון והתקנת מזגנים.`,
-
-        includes: [
-
-          'בדיקת גז קירור וזרימה',
-
-          'ניקוי פילטרים וספירלות',
-
-          'תיקון דליפות גז',
-
-          'התקנת יחידות חדשות',
-
-          'אחריות עבודה ל-12 חודשים'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('צבע') || categoryLower.includes('צבעי')) {
-
-      return {
-
-        description: `שירות צביעה מקצועי מבוצע על ידי ${proName}. כולל הכנה, צביעה וגימור מוקפח.`,
-
-        includes: [
-
-          'הכנת קירות ומשטחים',
-
-          'צביעה בצבע איכותי',
-
-          'גימור מוקפח ומבריק',
-
-          'ניקוי וסידור המקום',
-
-          'אחריות צביעה ל-2 שנים'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('ניקיון')) {
-
-      return {
-
-        description: `שירות ניקיון מקצועי מבוצע על ידי ${proName}. כולל ניקיון יסודי, חיטוי וחיטוי עמוק.`,
-
-        includes: [
-
-          'ניקיון כללי של המקום',
-
-          'חיטוי משטחים ורצפות',
-
-          'ניקוי חלונות ומראות',
-
-          'סידור וארגון המקום',
-
-          'אספקת חומרי ניקיון'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('תחזוקה') || categoryLower.includes('הידמן')) {
-
-      return {
-
-        description: `שירות תחזוקה כללי מבוצע על ידי ${proName}. כולל תיקונים, הרכבות ועבודות פלסטיות.`,
-
-        includes: [
-
-          'תיקונים קלים והרכבות',
-
-          'עבודות פלסטיות קטנות',
-
-          'תליית תמונות ומדפים',
-
-          'סדרנים וארונות',
-
-          'אחריות עבודה ל-3 חודשים'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('בנייה') || categoryLower.includes('שיפוצ')) {
-
-      return {
-
-        description: `שירותי בנייה ושיפוצים מקצועיים מבוצעים על ידי ${proName}. כולל בנייה, שיפוצים ועבודות גמר.`,
-
-        includes: [
-
-          'תכנון וביצוע עבודות',
-
-          'עבודות גמר ואיטום',
-
-          'הריסה ופינוי אתר',
-
-          'עבודות נגרות וחשמל',
-
-          'פיקוח ותיאום עם רשויות'
-
-        ]
-
-      };
-
-    } else if (categoryLower.includes('גן')) {
-
-      return {
-
-        description: `שירותי גינון מקצועיים מבוצעים על ידי ${proName}. כולל גיזום, טיפוח ועיצוב גינות.`,
-
-        includes: [
-
-          'גיזום דשא וצמחייה',
-
-          'טיפול עצים והדברה',
-
-          'התקנת מערכות השקיה',
-
-          'עיצוב וסידור גינה',
-
-          'ייעוץ והדרכה חקלאית'
-
-        ]
-
-      };
-
-    } else {
-
-      return {
-
-        description: `שירות ${proBio} מקצועי מבוצע על ידי ${proName}. כולל אבחון, תיקון ובדיקה.`,
-
-        includes: [
-
-          'בדיקה והערכה',
-
-          'תיקונים ותיקונים בסיסיים',
-
-          'החלפת חלקים (בתשלום נוסף)',
-
-          'ניקוי לאחר השירות',
-
-          'אחריות שירות ל-30 יום'
-
-        ]
-
-      };
-
-    }
-
-  };
-
-
-
-  const serviceDetails = getServiceDetails(proCategory);
-
-  
-
-  // Generate dynamic rating and reviews based on professional ID
-
-  const generateRating = (id: string) => {
-
-    const numId = parseInt(id) || 1;
-
-    // Use professional ID to generate consistent but different ratings
-
-    const baseRating = 4.5 + (numId % 5) * 0.1; // Ratings between 4.5-4.9
-
-    return Math.min(5.0, baseRating);
-
-  };
-
-  
-
-  const generateReviews = (id: string) => {
-
-    const numId = parseInt(id) || 1;
-
-    // Use professional ID to generate consistent but different review counts
-
-    return 50 + (numId * 23) + (numId % 7) * 11; // Between 50-200 reviews
-
-  };
-
-  
-
-  const getDuration = (category: string) => {
-
-    const categoryLower = category.toLowerCase();
-
-    if (categoryLower.includes('חשמל') || categoryLower.includes('חשמלאי')) {
-
-      return '2-3 שעות';
-
-    } else if (categoryLower.includes('אינסטל') || categoryLower.includes('אינסטלטור')) {
-
-      return '1-2 שעות';
-
-    } else if (categoryLower.includes('מזג') || categoryLower.includes('טכנאי מזגנים')) {
-
-      return '1.5-2.5 שעות';
-
-    } else if (categoryLower.includes('צבע') || categoryLower.includes('צבעי')) {
-
-      return '4-8 שעות';
-
-    } else if (categoryLower.includes('ניקיון')) {
-
-      return '2-4 שעות';
-
-    } else if (categoryLower.includes('תחזוקה') || categoryLower.includes('הידמן')) {
-
-      return '1-3 שעות';
-
-    } else if (categoryLower.includes('בנייה') || categoryLower.includes('שיפוצ')) {
-
-      return 'מספר ימים';
-
-    } else if (categoryLower.includes('גן')) {
-
-      return '2-3 שעות';
-
-    } else {
-
-      return 'שעתיים';
-
-    }
-
-  };
-
-
-
-  const service: Service = {
-
-    id: parseInt(proId) || 1,
-
-    name: proName,
-
-    category: proBio,
-
-    price: parseInt(proPrice) || 120,
-
-    rating: generateRating(proId),
-
-    reviews: generateReviews(proId),
-
-    duration: getDuration(proCategory),
-
-    image: '/api/placeholder/400/300',
-
-    description: serviceDetails.description,
-
-    includes: serviceDetails.includes
-
-  };
-
-  
-
-  const [step, setStep] = useState<number>(1);
-
+  const queryParams = new URLSearchParams(location.search);
+  const initialStep = Number(queryParams.get('step')) || 1;
+  const [step, setStep] = useState<number>(initialStep);
+
+  //const [step, setStep] = useState<number>(1);
   const [selectedDate, setSelectedDate] = useState<DateOption>(dates[0]);
-
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
-
-  const [name, setName] = useState<string>('');
-
   const [address, setAddress] = useState<string>('');
-
   const [notes, setNotes] = useState<string>('');
-
-
-
+  const[name,setName]=useState<string>(''); 
   return (
-
     <div className="min-h-screen bg-gray-50">
-
       {/* Header */}
-
       <div className="bg-white border-b border-gray-100 sticky top-0 z-20">
-
         <div className="max-w-3xl mx-auto px-4 py-4">
-
           <div className="flex items-center gap-4">
-
             <Link to={createPageUrl('Services')}>
-
               <Button variant="ghost" size="icon" className="rounded-full">
-
                 <ArrowLeft className="w-5 h-5" />
-
               </Button>
-
             </Link>
-
             <div className="flex-1">
-
               <h1 className="font-bold text-gray-900">הזמן שירות</h1>
-
               <p className="text-sm text-gray-500">שלב {step} 3</p>
-
             </div>
-
           </div>
-
           
-
           {/* Progress Bar */}
-
           <div className="flex gap-2 mt-4">
-
             {[1, 2, 3].map((s) => (
-
               <div
-
                 key={s}
-
                 className={`h-1 flex-1 rounded-full transition-colors ${
-
                   s <= step ? 'bg-amber-500' : 'bg-gray-200'
-
                 }`}
-
               />
-
             ))}
-
           </div>
-
         </div>
-
       </div>
-
  <div className="max-w-3xl mx-auto px-4 py-6">
-
         {/* Step 1: Service Details */}
-
         {step === 1 && (
-
           <motion.div
-
             initial={{ opacity: 0, x: 20 }}
-
             animate={{ opacity: 1, x: 0 }}
-
             className="space-y-6"
-
           >
-
             {/* Service Card */}
-
             <Card className="overflow-hidden border-0 shadow-lg rounded-3xl">
-
               <div className="relative h-48">
-
                 <img
-
                   src={service.image}
-
                   alt={service.name}
-
                   className="w-full h-full object-cover"
-
                 />
-
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
                 <div className="absolute bottom-4 left-4 right-4 text-white">
-
                   <p className="text-sm font-medium opacity-80">{service.category}</p>
-
                   <h2 className="text-2xl font-bold">{service.name}</h2>
-
                 </div>
-
               </div>
-
               
-
               <div className="p-6">
-
                 <div className="flex items-center gap-6 mb-4">
-
                   <div className="flex items-center gap-1">
-
                     <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-
                     <span className="font-bold text-gray-900">{service.rating}</span>
-
                     <span className="text-gray-500">({service.reviews} ביקורות)</span>
-
                   </div>
-
                   <div className="flex items-center gap-1 text-gray-600">
-
                     <Clock className="w-5 h-5" />
-
                     <span>{service.duration}</span>
-
                   </div>
-
                 </div>
-
                 
-
                 <p className="text-gray-600 mb-6">{service.description}</p>
-
                 
-
                 <div className="bg-gray-50 rounded-2xl p-4">
-
                   <h3 className="font-semibold text-gray-900 mb-3">מה כלול</h3>
-
                   <ul className="space-y-2">
-
                     {service.includes.map((item, i) => (
-
                       <li key={i} className="flex items-start gap-3">
-
                         <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-
                           <Check className="w-3 h-3 text-emerald-600" />
-
                         </div>
-
                         <span className="text-gray-700">{item}</span>
-
                       </li>
-
                     ))}
-
                   </ul>
-
                 </div>
-
               </div>
-
             </Card>
-
-
 
             {/* Price Summary */}
-
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
               <div className="flex items-center justify-between mb-4">
-
                 <span className="text-gray-600">דמי שירות</span>
-
-                <span className="font-bold text-gray-900">₪{service.price}</span>
-
+                <span className="font-bold text-gray-900">${service.price}.00</span>
               </div>
-
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-
                 <span>דמי שירות</span>
-
-                <span>₪20</span>
-
+                <span>$4.99</span>
               </div>
-
               <div className="h-px bg-gray-200 my-4" />
-
               <div className="flex items-center justify-between">
-
                 <span className="font-bold text-gray-900">סך הכל</span>
-
-                <span className="text-2xl font-bold text-gray-900">₪{service.price + 20}</span>
-
+                <span className="text-2xl font-bold text-gray-900">${service.price + 4.99}</span>
               </div>
-
             </Card>
 
-
-
             <Button
-
-              onClick={() => setStep(2)}
-
+            onClick={() => {if (localStorage.getItem("user")) {
+              setStep(2);
+            } else {navigate(createPageUrl('Login'), { 
+              state: { from: location.pathname + "?step=2" } 
+            });}}}
+  
+           /////////////// onClick={() => navigate(createPageUrl('Login'),{state:{from: location.pathname }})}
+              //onClick={()=>createPageUrl('Login')}
+              //onClick={() => setStep(2)}
               className="w-full bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl text-lg font-semibold"
-
             >
-
-              המשך
-
+              המשך לתשלום
               <ChevronRight className="w-5 h-5 ml-2" />
-
             </Button>
-
           </motion.div>
-
         )}
-
-
-
-        {/* Step 2: Schedule */}
-
+ {/* Step 2: Schedule */}
         {step === 2 && (
-
           
-
           //יש לבדוק האם הוא יתחבר ולפי זה לשלוח אותו לאיזה דף ?
 
 
 
-
-
-
-
           <motion.div
-
             initial={{ opacity: 0, x: 20 }}
-
             animate={{ opacity: 1, x: 0 }}
-
             className="space-y-6"
-
           >
-
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-
                 <Calendar className="w-5 h-5 text-amber-500" />
-
                 בחר תאריך
-
               </h3>
-
               
-
               <div className="grid grid-cols-7 gap-2">
-
                 {dates.map((d) => (
-
                   <button
-
                     key={d.num}
-
                     disabled={!d.available}
-
                     onClick={() => setSelectedDate(d)}
-
                     className={`p-3 rounded-2xl text-center transition-all ${
-
                       selectedDate?.num === d.num
-
                         ? 'bg-gray-900 text-white shadow-lg'
-
                         : d.available
-
                         ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-
                         : 'bg-gray-50 text-gray-300 cursor-not-allowed'
-
                     }`}
-
                   >
-
                     <p className="text-xs font-medium opacity-70">{d.day}</p>
-
                     <p className="text-lg font-bold">{d.num}</p>
-
                   </button>
-
                 ))}
-
               </div>
-
             </Card>
 
-
-
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-
                 <Clock className="w-5 h-5 text-amber-500" />
-
                 בחר שעה
-
               </h3>
-
               
-
               <div className="grid grid-cols-4 gap-3">
-
                 {timeSlots.map((slot) => (
-
                   <button
-
                     key={slot.id}
-
                     disabled={!slot.available}
-
                     onClick={() => setSelectedTime(slot)}
-
                     className={`p-3 rounded-xl text-center transition-all ${
-
                       selectedTime?.id === slot.id
-
                         ? 'bg-amber-500 text-gray-900 shadow-lg font-semibold'
-
                         : slot.available
-
                         ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-
                         : 'bg-gray-50 text-gray-300 cursor-not-allowed line-through'
-
                     }`}
-
                   >
-
                     {slot.label}
-
                   </button>
-
                 ))}
-
               </div>
-
             </Card>
-
-
 
             <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
               <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-
                 <MapPin className="w-5 h-5 text-amber-500" />
-
                 מיקום שירות
-
               </h3>
-
               
-
               <div className="space-y-4">
-
                 <div>
-
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">שם</Label>
-
                    <Input
-
                     id="name"
-
                     placeholder="הקלד שם מלא"
-
                     value={name}
-
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-
-                      // Allow only text characters, spaces, and basic punctuation
-
-                      const textOnly = e.target.value.replace(/[0-9]/g, '');
-
-                      setName(textOnly);
-
-                    }}
-
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
                     className="py-6 rounded-xl border-gray-200"
-
                   />
-
-                  
                   <Label htmlFor="address" className="text-gray-700 mb-2 block">כתובת</Label>
-
                   <Input
-
                     id="address"
-
                     placeholder="הקלד כתובת מלאה"
-
                     value={address}
-
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAddress(e.target.value)}
-
                     className="py-6 rounded-xl border-gray-200"
-
                   />
-
                 </div>
-
                 
-
                 <div>
-
                   <Label htmlFor="notes" className="text-gray-700 mb-2 block">הערות נוספות (אופציונלי)</Label>
-
                   <Textarea
-
                     id="notes"
-
                     placeholder="...הוראות או פרטים מיוחדים בנוגע לבעיה"
-
                     value={notes}
-
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
-
                     className="rounded-xl border-gray-200 min-h-[100px]"
-
                   />
-
                 </div>
-
               </div>
-
             </Card>
-
-
 
             <div className="flex gap-3">
-
               <Button
-
                 variant="outline"
-
                 onClick={() => setStep(1)}
-
                 className="flex-1 py-6 rounded-2xl border-2"
-
               >
-
                 חזרה
-
               </Button>
-
               <Button
-
-               onClick={() => setStep(3)}
-
+              onClick={() => navigate(createPageUrl('Payment'))}
+              //onClick={()=>createPageUrl('Payment')}
                 disabled={!selectedTime || !address}
-
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
-
               >
-
-
-
-
 
                 המשך לתשלום
-
-
-
-                
-
                 <ChevronRight className="w-5 h-5 ml-2" />
-
               </Button>
-
             </div>
-
           </motion.div>
-
         )}
-
-
 
         {/* Step 3: Confirmation */}
-
         {step === 3 && (
-
           <motion.div
-
             initial={{ opacity: 0, x: 20 }}
-
             animate={{ opacity: 1, x: 0 }}
-
             className="space-y-6"
-
+            
           >
-
-            <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
-              <h3 className="font-bold text-gray-900 text-lg mb-4 flex items-center gap-2">
-
-                <CheckCircle className="w-5 h-5 text-emerald-500" />
-
-                סיכום הזמנה
-
-              </h3>
-
-              
-
-              <div className="space-y-4">
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-
-                  <span className="text-gray-600">שירות</span>
-
-                  <span className="font-semibold text-gray-900">{service.name}</span>
-
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-
-                  <span className="text-gray-600">תאריך</span>
-
-                  <span className="font-semibold text-gray-900">
-
-                    {selectedDate?.date.toLocaleDateString('he-IL')}
-
-                  </span>
-
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-
-                  <span className="text-gray-600">שעה</span>
-
-                  <span className="font-semibold text-gray-900">{selectedTime?.label}</span>
-
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-
-                  <span className="text-gray-600">שם</span>
-
-                  <span className="font-semibold text-gray-900">{name}</span>
-
-                </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-
-                  <span className="text-gray-600">כתובת</span>
-
-                  <span className="font-semibold text-gray-900">{address}</span>
-
-                </div>
-
-                {notes && (
-
-                  <div className="py-3 border-b border-gray-100">
-
-                    <span className="text-gray-600 block mb-2">הערות</span>
-
-                    <span className="font-semibold text-gray-900">{notes}</span>
-
-                  </div>
-
-                )}
-
-              </div>
-
-            </Card>
-
-
-
-            <Card className="p-6 rounded-3xl border-0 shadow-lg">
-
-              <div className="flex items-center justify-between mb-4">
-
-                <span className="text-gray-600">דמי שירות</span>
-
-                <span className="font-bold text-gray-900">₪{service.price}</span>
-
-              </div>
-
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-
-                <span>דמי שירות</span>
-
-                <span>₪20</span>
-
-              </div>
-
-              <div className="h-px bg-gray-200 my-4" />
-
-              <div className="flex items-center justify-between">
-
-                <span className="font-bold text-gray-900">סך הכל</span>
-
-                <span className="text-2xl font-bold text-gray-900">₪{service.price + 20}</span>
-
-              </div>
-
-            </Card>
-
-
-
-            <div className="flex gap-3">
-
-              <Button
-
-                variant="outline"
-
-                onClick={() => setStep(2)}
-
-                className="flex-1 py-6 rounded-2xl border-2"
-
-              >
-
-                חזרה
-
-              </Button>
-
-              <Button
-
-                onClick={() => navigate(createPageUrl('payment'))}
-
-                className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold"
-
-              >
-
-                אישור ותשלום
-
-                <ChevronRight className="w-5 h-5 ml-2" />
-
-              </Button>
-
-            </div>
-
+            {/* ... rest is unchanged, types inferred automatically */}
           </motion.div>
-
+          
         )}
-
       </div>
-
     </div>
-
   );
-
 }
-

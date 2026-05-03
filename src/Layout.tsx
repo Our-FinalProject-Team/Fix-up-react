@@ -1,9 +1,10 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState, ReactNode, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
   Home, 
   Search, 
+  SquareDashedBottom,
   MapPin, 
   User, 
   Menu,
@@ -13,6 +14,7 @@ import {
 import { Button } from './components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from "@/pages/Contexts/AuthContext";
+import { useNavigate } from 'react-router-dom';
 
 // Define props type
 interface LayoutProps {
@@ -23,33 +25,57 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, currentPageName }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isLoggedIn, logout } = useAuth();
-  const userData = JSON.parse(localStorage.getItem('userRole') || '{}');
-  const userRole = userData.role;
+ const userRole = localStorage.getItem('userRole') || 'guest';
+
+ const navigate = useNavigate();
+
+const getHomeDashboard = () => {
+  if (userRole === "Professional") return 'ProDashboard';
+  if (userRole === "Client") return 'Home';
+  return 'Home'; // ברירת מחדל לאורח
+};
+
+ const homePage = getHomeDashboard();
 
 
   const publicItems = [
-    { name: 'עמוד הבית', icon: Home, page: 'Home' },
-    { name: 'איך זה עובד', icon: Search, page: 'HowItWorks' },
+  { name: 'עמוד הבית', icon: Home, page: 'Home' },
+];
 
-  ];
+const ClientsItems = [
+  { name: 'שירותים', icon: Search, page: 'Services' },
+  { name: 'פרופיל', icon: User, page: 'Profile' },
+  { name: 'איך זה עובד', icon: Search, page: 'HowItWorks' },
 
-  const ClientsItems = [
-    { name: 'שירותים', icon: Search, page: 'Services' },
-    { name: 'פרופיל', icon: User, page: 'Profile' },
-    {name: 'הרשמה', icon: User, page: 'RegisterRole'},
-  ];
+];
 
-   const ProItems = [
-    { name: 'דשבורד', icon: Search, page: 'ProDashboard' },
-     ];
+const ProItems = [
+  { name: 'שולחן עבודה', icon: SquareDashedBottom, page: 'ProDashboard' },
+  { name: 'איך זה עובד עבורך', icon: Search, page: 'HowItWorksPro' },
 
-  const visibleNavItems = !isLoggedIn 
-  ? [...publicItems, { name: 'הרשמה', icon: User, page: 'RegisterRole' }] // אורח רואה רק דפים ציבוריים והרשמה
-  : (userRole === "Client") 
-    ? [...publicItems, ...ClientsItems] 
-    : [...ProItems,...publicItems];
+  // כאן אפשר להוסיף דפים שרלוונטיים רק לבעל מקצוע כמו 'הגדרות עסק' וכדומה
+];
 
-  const isFullScreenPage = ['TrackService','ProDashboard'].includes(currentPageName);
+// ניהול הנראות של התפריט
+const visibleNavItems = (() => {
+  if (!isLoggedIn) {
+    return [...publicItems, { name: 'הרשמה', icon: User, page: 'RegisterRole' }];
+  }
+  
+  if (userRole === "Professional") {
+    return ProItems; // בעל מקצוע רואה רק את התפריט שלו
+  }
+  
+  return [...publicItems, ...ClientsItems]; // לקוח רואה את הציבורי + דפי לקוח
+})();
+
+  const isFullScreenPage = ['ProDashboard'].includes(currentPageName);
+      
+useEffect(() => {
+  if (isLoggedIn && userRole === "Professional" && currentPageName === 'Home') {
+    navigate('/ProDashboard');
+  }
+}, [isLoggedIn, userRole, currentPageName]);
 
   return (
     <div className="min-h-screen bg-gray-50">

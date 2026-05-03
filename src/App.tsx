@@ -10,6 +10,8 @@ import PageNotFound from "./lib/PageNotFound";
 import React, { ReactNode } from "react";
 import { AuthProvider } from "./pages/Contexts/AuthContext";
 import  ProtectedRoute  from "@/lib/ProtectedRoute";
+import { Provider } from 'react-redux';
+//import { store } from '@/store';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? (Object.keys(Pages)[0] as string);

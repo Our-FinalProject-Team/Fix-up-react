@@ -11,7 +11,7 @@ import AvailabilityCalendar from '@/components/prodashboard/Calander';
 import InboxPanel from '@/components/prodashboard/InboxPanel';
 import ActiveMission from '@/components/prodashboard/ActiveMisson';
 import { HubConnectionBuilder } from '@microsoft/signalr';
-import HowItWorkPanel from '@/pages/HowItWorks.tsx';
+import HowItWorkPanel from '@/pages/howitWorksPro.tsx';
 import HomePanel from '@/pages/Home.tsx';
 import api from './api';
 // --- Interfaces & Types ---
@@ -37,7 +37,7 @@ interface Theme {
 
 const TABS: Tab[] = [
   { id: 'overview', label: 'סקירה כללית', icon: LayoutDashboard },
-  { id: 'HowitWorks', label: 'איך זה עובד', icon: Search },
+  { id: 'HowitWorksPro', label: 'איך זה עובד', icon: Search },
   { id: 'Home', label: 'עמוד הבית', icon: Home },
 
 ];
@@ -135,7 +135,7 @@ useEffect(() => {
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">לוח בקרה טכנאי</p>
-              <p className={`text-[10px] ${currentTheme.subtext}`}>קרלוס מ. · מזהה #4821</p>
+              {/* <p className={`text-[10px] ${currentTheme.subtext}`}>${cu}</p> */}
             </div>
           </div>
 

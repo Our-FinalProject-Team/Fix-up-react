@@ -11,18 +11,12 @@ import { getAvatarColor2, getInitials, formatDateTime } from "../utils/chatUtils
 import {useChatSound} from '../hooks/useChatSound';
 import { useSearchParams,useNavigate } from "react-router-dom";
 
-
-
-
-
-interface Role{
-  role:"Client" | "Professional"
-}
+export type UserRole = "Client" | "Professional";
 
 interface User {
   email: string;
   fullName: string;
-  role: Role;
+  role: UserRole;
   categoryId?: number;
   isGuest?: boolean;
   id?: number;
@@ -62,17 +56,17 @@ export default  function Chat() {
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [hasUnlockedAudio, setHasUnlockedAudio] = useState(false);
-  const [userRole, setUserRole] = useState<Role | null>(() => {
+  const [userRole, setUserRole] = useState<UserRole | null>(() => {
   const savedRole = localStorage.getItem("userRole");
   
   if (!savedRole) return null;
 
   try {
-    return JSON.parse(savedRole) as Role;
+    return JSON.parse(savedRole) as UserRole;
   } catch (e) {
     // אם ה-Parse נכשל, כנראה שזו מחרוזת פשוטה (כמו "Client")
     // במקרה כזה, נחזיר אובייקט במבנה שהגדרת
-    return { role: savedRole as "Client" | "Professional" };
+    return savedRole as UserRole;
   }
 });
 const conversationId = searchParams.get("id");
@@ -96,7 +90,7 @@ useEffect(() => {
       setCurrentUser({
         email: "guest@example.com",
         fullName: "אורח",
-        role: { role: "Client" },
+        role:  "Client" as UserRole,
         isGuest: true,
         id:0
       });
@@ -104,7 +98,7 @@ useEffect(() => {
     }
 
     try {
-      const endpoint = userRole?.role === "Client" ? "Clients/me" : "Professionals/me";
+      const endpoint = userRole  === "Client" ? "Clients/me" : "Professionals/me";
       
       const response = await api.get(endpoint);
       
@@ -116,7 +110,7 @@ useEffect(() => {
       setCurrentUser({
         email: "guest@example.com",
         fullName: "אורח",
-        role: { role: "Client" },
+        role:  "Client" as UserRole,
         isGuest: true,
         id:0
       });
@@ -222,8 +216,8 @@ const handleSend = useCallback(async (content: string, file?: File) => {
   if (!file && (!content || content.trim() === "")) return;
 
   // 1. יצירת אובייקט הודעה זמני כדי להציג מיד על המסך
-  const roleObj = JSON.parse(localStorage.getItem("userRole") || '{"role":"Client"}');
-  const cleanRole = roleObj.role || roleObj;
+  const roleObj = localStorage.getItem("userRole") || 'Client';
+  const cleanRole = roleObj;
   console.log("this is the user name",currentUser.fullName);
   
   const tempMessage: Message = {
@@ -275,7 +269,7 @@ const handleSend = useCallback(async (content: string, file?: File) => {
 
   const displayMessages = messages.filter(msg => {
     if (!currentUser) return false;
-    if (userRole?.role === "Client") return true;
+    if (userRole === "Client") return true;
     return msg.categoryId === currentUser.categoryId || msg.categoryId === 0;
   });
 

@@ -42,7 +42,7 @@ export default function ActiveMission(): React.JSX.Element {
   const [accepted, setAccepted] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
 
-  const professionalCategory = 8;
+  //const professionalCategory = 8;
   
   const advanceStep = (): void => {
     if (currentStep < 3) {

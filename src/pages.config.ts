@@ -4,7 +4,6 @@ import ClientRegister from './pages/Registration/ClientRegister.tsx';
 import Home from './pages/Home.tsx';
 import Services from './pages/Services.tsx';
 import BookService from './pages/BookService.tsx';
-import TrackService from './pages/TrackService.tsx';
 import Profile from './pages/Profile.tsx';
 import HowItWorks from './pages/HowItWorks.tsx';
 import __Layout from './Layout.tsx';
@@ -14,15 +13,12 @@ import ReviewForm from './pages/ReviewForm.tsx';
 import FullScreenChat from './pages/FullScreenChat.tsx'
 import payment from './pages/payment.tsx';
 import ProDashboard from './pages/ProDashBoard.tsx';
-import ElectricianProfile from './pages/ElectricianProfile.tsx';
-import Electricians from './pages/Electricians.tsx';
-import ProOrders from './pages/ClientsOrders.tsx';
+import HowItWorksPro from './pages/howitWorksPro.tsx';
 export const PAGES = {
    
     "Home": Home,
     "Services": Services,
     "BookService": BookService,
-    "TrackService": TrackService,
     "Profile": Profile,
     "HowItWorks": HowItWorks,
     "Registration": Registration, 
@@ -33,9 +29,7 @@ export const PAGES = {
     "FullScreenChat":FullScreenChat,
     "payment":payment,
     "ProDashboard":ProDashboard,
-    "ElectricianProfile":ElectricianProfile,
-    "Electricians":Electricians,
-    "ProOrders":ProOrders,
+    "HowItWorksPro":HowItWorksPro,
 };
 
 
