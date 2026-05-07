@@ -92,9 +92,9 @@ export default function HowItWorksPro() {
             <span className="inline-block bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
               לבעלי מקצוע
             </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
               איך FIXUP עובד עבורך?
-            </h1>
+            </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               הצטרף לאלפי בעלי מקצוע שמרוויחים יותר, עובדים בגמישות ובונים מוניטין חזק — הכל דרך פלטפורמה אחת.
             </p>
@@ -205,7 +205,7 @@ export default function HowItWorksPro() {
                   </li>
                 ))}
               </ul>
-              <Link to="/TechnicianDashboard">
+              <Link to="/prodashboard">
                 <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-6 rounded-2xl text-lg">
                   עבור ללוח הבקרה
                   <ArrowLeft className="mr-2 w-5 h-5" />

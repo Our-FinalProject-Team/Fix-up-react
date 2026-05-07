@@ -7,6 +7,8 @@ import { InputField } from "@/components/ui/InputField";
 import { toast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom"; // ייבוא תקין של הניווט
 import { useAuth } from "../Contexts/AuthContext";
+import { useDispatch } from "react-redux";
+import { setUser } from "../store/slices/userSlice"; // השם של ה-Action שלך
 
 
 export default function LogIn() {
@@ -18,6 +20,7 @@ export default function LogIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPro, setIsPro] = useState(true);
+  const dispatch = useDispatch(); // <--- הוספה כאן
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -36,8 +39,7 @@ export default function LogIn() {
         password: form.password
       });
 
-
-      const { token, role } = response.data;
+      const { token, role,user: userData } = response.data;
 
       if(!token || !role)
        {
@@ -53,8 +55,7 @@ export default function LogIn() {
       localStorage.setItem("userToken", token);
       localStorage.setItem("userRole", role);
       
-      
-      
+      dispatch(setUser({ ...userData, role }));
       login(token,role)
 
        toast({

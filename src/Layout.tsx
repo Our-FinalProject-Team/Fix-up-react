@@ -1,4 +1,5 @@
 import React, { useState, ReactNode, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
@@ -53,7 +54,6 @@ const ProItems = [
   { name: 'שולחן עבודה', icon: SquareDashedBottom, page: 'ProDashboard' },
   { name: 'איך זה עובד עבורך', icon: Search, page: 'HowItWorksPro' },
 
-  // כאן אפשר להוסיף דפים שרלוונטיים רק לבעל מקצוע כמו 'הגדרות עסק' וכדומה
 ];
 
 // ניהול הנראות של התפריט
@@ -310,3 +310,6 @@ useEffect(() => {
 };
 
 export default Layout;
+
+
+                 

@@ -14,6 +14,11 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import HowItWorkPanel from '@/pages/howitWorksPro.tsx';
 import HomePanel from '@/pages/Home.tsx';
 import api from './api';
+import { useDispatch } from 'react-redux';
+import { setUser } from './store/slices/userSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '../pages/store'; 
+import { se } from 'date-fns/locale';
 // --- Interfaces & Types ---
 
 interface Tab {
@@ -56,9 +61,10 @@ export default function TechnicianDashboard() {
   const [isOnline] = useState<boolean>(true);
   const [notifCount] = useState<number>(3);
   const [themeId, setThemeId] = useState<string>('dark');
+  // const [currentUser, setCurrentUser] = useState<any>(null);
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
   const [newJobs, setNewJobs] = useState<any[]>([]);
-  const [professionalCategory, setProfessionalCategory] = useState<number>(0); // הוספת State לקטגוריה של בעל המקצוע
+  const [professionalCategory, setProfessionalCategory] = useState<number >(0); // הוספת State לקטגוריה של בעל המקצוע
   // מציאת ערכת הנושא הנוכחית - הוספת fallback ליתר ביטחון
   const currentTheme = THEMES.find(t => t.id === themeId) || THEMES[0];
   const isDark = themeId !== 'light';
@@ -80,38 +86,38 @@ export default function TechnicianDashboard() {
     setNewJobs(prev => [data, ...prev]);
   });
 
-  // פונקציית ניקוי - חובה כדי למנוע כפילויות ברענון
   return () => {
     connection.stop();
   };
 }, [professionalCategory]);
 
-useEffect(() => {
-    const fetchCategory = async () => {
-        try {
-            const response = await api.get("/Professionals/me");
-            console.log(response.data);
-            
-            // השדה categoryId מחושב בשרת בתוך ה-DTO ומגיע לכאן אוטומטית
-            setProfessionalCategory(response.data.categoryId); 
-        } catch (error) {
-            console.error("Error fetching category:", error);
-        }
-    };
+    const user = useSelector((state: RootState) => state.user.currentUser);
+    console.log(user);
+    
+   useEffect(() => {
 
-    fetchCategory();
-}, []);
+    if (!user) return;
+
+    if (user && user.role === 'Professional') {
+      console.log("the user category ",user.categoryId);
+      
+      setProfessionalCategory(user.categoryId);
+    } else {
+      setProfessionalCategory(0);
+    }
+  }, [user]);
 
 useEffect(() => {
     const fetchHistory = async () => {
-      console.log(professionalCategory);
       
-        if (professionalCategory > 0) {
+        if (professionalCategory !== null && professionalCategory > 0) {
             try {
                 // קריאה לשרת לקבלת הודעות ישנות של הקטגוריה הזו
                 const response = await api.get(`/Messages/category/${professionalCategory}`);
                 
                 // עדכון ה-State עם מה שחזר מה-DB
+                console.log(response.data);
+                
                 setNewJobs(response.data); 
             } catch (error) {
                 console.error("Error fetching history:", error);
@@ -135,7 +141,7 @@ useEffect(() => {
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">לוח בקרה טכנאי</p>
-              {/* <p className={`text-[10px] ${currentTheme.subtext}`}>${cu}</p> */}
+              <p className={`text-[10px] ${currentTheme.subtext}`}>{user?.fullName || 'שם משתמש לא מוגדר'}</p>
             </div>
           </div>
 
@@ -252,9 +258,9 @@ useEffect(() => {
         
 
         
-          {activeTab === 'HowitWorks' && (
+          {activeTab === 'HowitWorksPro' && (
             <motion.div
-              key="HowitWorks" 
+              key="HowitWorksPro" 
               initial={{ opacity: 0 }
             }
               animate={{ opacity: 1 }}
