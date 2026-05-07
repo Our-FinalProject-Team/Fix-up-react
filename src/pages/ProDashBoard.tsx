@@ -5,7 +5,8 @@ import {
   Sun, Moon, Palette, Check, LucideIcon,Home, 
   Search
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/pages/Contexts/AuthContext';
 
 import AvailabilityCalendar from '@/components/prodashboard/Calander';
 import InboxPanel from '@/components/prodashboard/InboxPanel';
@@ -43,7 +44,6 @@ interface Theme {
 const TABS: Tab[] = [
   { id: 'overview', label: 'סקירה כללית', icon: LayoutDashboard },
   { id: 'HowitWorksPro', label: 'איך זה עובד', icon: Search },
-  { id: 'Home', label: 'עמוד הבית', icon: Home },
 
 ];
 
@@ -58,14 +58,21 @@ const THEMES: Theme[] = [
 
 export default function TechnicianDashboard() {
   const [activeTab, setActiveTab] = useState<string>('overview');
-  const [isOnline] = useState<boolean>(true);
   const [notifCount] = useState<number>(3);
   const [themeId, setThemeId] = useState<string>('dark');
-  // const [currentUser, setCurrentUser] = useState<any>(null);
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
   const [newJobs, setNewJobs] = useState<any[]>([]);
-  const [professionalCategory, setProfessionalCategory] = useState<number >(0); // הוספת State לקטגוריה של בעל המקצוע
-  // מציאת ערכת הנושא הנוכחית - הוספת fallback ליתר ביטחון
+  const [professionalCategory, setProfessionalCategory] = useState<number>(0);
+  
+  // Integration with AuthContext
+  const { isLoggedIn, logout } = useAuth();
+  const navigate = useNavigate();
+  
+  // Get user from Redux
+  const user = useSelector((state: RootState) => state.user.currentUser);
+  const isLoading = !user && isLoggedIn;
+  
+  // Find current theme
   const currentTheme = THEMES.find(t => t.id === themeId) || THEMES[0];
   const isDark = themeId !== 'light';
   useEffect(() => {
@@ -91,10 +98,8 @@ export default function TechnicianDashboard() {
   };
 }, [professionalCategory]);
 
-    const user = useSelector((state: RootState) => state.user.currentUser);
-    console.log(user);
-    
-   useEffect(() => {
+  
+  useEffect(() => {
 
     if (!user) return;
 
@@ -141,16 +146,40 @@ useEffect(() => {
             </div>
             <div>
               <p className="font-bold text-sm leading-tight">לוח בקרה טכנאי</p>
-              <p className={`text-[10px] ${currentTheme.subtext}`}>{user?.fullName || 'שם משתמש לא מוגדר'}</p>
+              {/* User Name Display with Loading State */}
+              {isLoading ? (
+                <div className={`animate-pulse h-3 w-24 rounded ${currentTheme.card}`} />
+              ) : (
+                <p className={`text-[10px] ${currentTheme.subtext}`}>
+                  {user?.fullName || 'אורח'}
+                </p>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Online indicator */}
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold ${isOnline ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`} />
-              {isOnline ? 'מחובר' : 'לא מחובר'}
-            </div>
+            {/* Status Button - Connected/Disconnected with Auth Integration */}
+            <button
+              onClick={() => {
+                if (isLoggedIn) {
+                  // Logout when connected
+                  logout();
+                  navigate('/LogIn');
+                } else {
+                  // Navigate to login when not connected
+                  navigate('/LogIn');
+                }
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                isLoggedIn 
+                  ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
+                  : 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+              }`}
+              title={isLoggedIn ? 'מחובר - לחץ להתנתקות' : 'לא מחובר - לחץ להתחברות'}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isLoggedIn ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+              {isLoggedIn ? 'מחובר' : 'לא מחובר'}
+            </button>
 
             {/* Dark/Light Toggle */}
             <button

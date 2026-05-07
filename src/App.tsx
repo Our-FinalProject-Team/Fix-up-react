@@ -8,6 +8,7 @@ import PageNotFound from "./lib/PageNotFound";
 //import { AuthProvider, useAuth } from "@/lib/AuthContext";
 //import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import React, { ReactNode, useEffect } from "react";
+import { BookingProvider } from "./pages/Contexts/BookServiceContext";
 import { AuthProvider } from "./pages/Contexts/AuthContext";
 import  ProtectedRoute  from "@/lib/ProtectedRoute";
 import { Provider } from 'react-redux';
@@ -57,7 +58,7 @@ const AuthenticatedApp: React.FC = () => {
 
     initializeUser();
   }, [dispatch]);
-  
+
   return (
     <Routes>
       <Route
@@ -93,11 +94,13 @@ const App: React.FC = () => {
     <Provider store={store}>
       <QueryClientProvider client={queryClientInstance}>
         <AuthProvider>
+         <BookingProvider>
         <Router>
           <NavigationTracker />
           <AuthenticatedApp />
         </Router>
         <Toaster />
+      </BookingProvider>
         </AuthProvider>
       </QueryClientProvider>
    </Provider>
