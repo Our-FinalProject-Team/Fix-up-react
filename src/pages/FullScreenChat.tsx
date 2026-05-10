@@ -233,7 +233,7 @@ const handleSend = useCallback(async (content: string, file?: File) => {
   };
 
   // 2. עדכון ה-UI באופן מיידי
-  setMessages(prev => [...prev, tempMessage]);
+ 
 
   try {
     const formData = new FormData();
@@ -252,13 +252,15 @@ const handleSend = useCallback(async (content: string, file?: File) => {
 
     if (response.data && response.data.success) {
       // כאן אפשר לעדכן את המזהה הזמני במזהה האמיתי מהשרת אם רוצים
-      console.log("נשלח בהצלחה");
+      const serverMessage = response.data.message;
+      console.log("Server message:", serverMessage);
       
-      // שליחה לניתוח (Analyze) כפי שעשית קודם
-      const analyzeData = new FormData();
-      if (file) analyzeData.append("image", file);
-      analyzeData.append("prompt", content);
-      await api.post("Message/analyze", analyzeData);
+     setMessages(prev => [
+    ...prev.filter(m => m.id !== tempMessage.id),
+    serverMessage
+  ]);
+
+      
     }
   } catch (error) {
     console.error("שגיאה בשליחה:", error);
