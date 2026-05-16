@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://localhost:7230/api'
+  baseURL: 'https://fixup-fullstack.onrender.com/api'
 });
 
 // המיירט שמוסיף את הטוקן לכל בקשה שיוצאת

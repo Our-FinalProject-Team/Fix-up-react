@@ -79,7 +79,7 @@ export default function TechnicianDashboard() {
   if (professionalCategory === 0) return; // אל תתחבר אם עדיין אין קטגוריה
 
   const connection = new HubConnectionBuilder()
-    .withUrl("https://localhost:7230/chatHub")
+    .withUrl("https://fixup-fullstack.onrender.com/chatHub")
     .withAutomaticReconnect()
     .build();
 

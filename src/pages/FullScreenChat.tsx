@@ -133,7 +133,7 @@ useEffect(() => {
 
   // 2. בניית חיבור SignalR
   const newConnection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7230/chatHub", {
+    .withUrl("https://fixup-fullstack.onrender.com/chatHub", {
       accessTokenFactory: () => localStorage.getItem("userToken") || ""
     })
     .withAutomaticReconnect()
