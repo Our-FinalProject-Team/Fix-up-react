@@ -346,6 +346,7 @@ if(!selectedPro){
                 className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-6 rounded-2xl font-semibold disabled:opacity-50"
               >
                 המשך לתשלום
+
                 <ChevronRight className="w-5 h-5 ml-2" />
               </Button>
             </div>

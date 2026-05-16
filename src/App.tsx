@@ -5,6 +5,8 @@ import NavigationTracker from "./lib/NavigationTracker";
 import { pagesConfig } from "./pages.config";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import PageNotFound from "./lib/PageNotFound";
+import BookService from "./pages/BookService";
+
 //import { AuthProvider, useAuth } from "@/lib/AuthContext";
 //import UserNotRegisteredError from "@/components/UserNotRegisteredError";
 import React, { ReactNode, useEffect } from "react";
@@ -104,6 +106,7 @@ const App: React.FC = () => {
         </AuthProvider>
       </QueryClientProvider>
    </Provider>
+
   );
 };
 

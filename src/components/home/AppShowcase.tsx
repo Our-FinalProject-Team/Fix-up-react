@@ -146,7 +146,8 @@ export default function AppShowcase(): JSX.Element {
             </div>
             <div>
               <p className="text-xs text-gray-500">מיקום</p>
-              <p className="text-sm font-semibold text-gray-900">ק"מ 0.5משם </p>
+                            
+              <p className="text-sm font-semibold text-gray-900"> 0.5 ק"מ משם</p>
             </div>
           </div>
         </motion.div>
